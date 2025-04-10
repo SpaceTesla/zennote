@@ -1,0 +1,8 @@
+name = "zennote-worker"
+main = "src/index.ts"
+compatibility_date = "2024-04-06"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "zennote-d1"
+database_id = "e65cd6ee-6507-4662-8aec-287a0e5f3f4e"
