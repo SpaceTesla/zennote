@@ -1,8 +1,5 @@
-import Header from '@/components/header';
 import Hero from '@/components/hero';
-import Footer from '@/components/footer';
 import MarkdownInput from '@/components/markdown-input';
-import NotesList from '@/components/notes-list';
 
 export default function Home() {
   return (
