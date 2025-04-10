@@ -20,7 +20,7 @@ export default function Header() {
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="icon" className="" asChild>
             <Link
-              href="https://github.com"
+              href="https://github.com/SpaceTesla/zennote"
               target="_blank"
               rel="noopener noreferrer"
             >
