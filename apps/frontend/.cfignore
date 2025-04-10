@@ -5,7 +5,6 @@ node_modules/
 .next/cache/
 .next/trace/
 .next/**/*.map
-.vercel/
 .vscode/
 .idea/
 out/         # Only if you're not using next export
