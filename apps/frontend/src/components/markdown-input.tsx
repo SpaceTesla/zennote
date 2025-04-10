@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { config } from '@/config';
 
 export default function MarkdownInput() {
+  const router = useRouter();
   const [markdown, setMarkdown] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -17,7 +20,7 @@ export default function MarkdownInput() {
     try {
       // Send markdown to backend API
       const response = await fetch(
-        'https://zennote-worker.shivansh-karan.workers.dev/notes',
+        `${config.api.baseUrl}${config.api.endpoints.notes}`,
         {
           method: 'POST',
           headers: {
@@ -38,6 +41,7 @@ export default function MarkdownInput() {
 
       // Handle successful save
       toast(`Your note has been saved with ID: ${data.id}`);
+      router.push(`/note/${data.id}`);
 
       console.log('Saved note:', data);
     } catch (error) {

@@ -1,16 +1,16 @@
 'use client';
 
-import Header from '@/components/header';
-import Footer from '@/components/footer';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { Link } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 import remarkBreaks from 'remark-breaks';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { config } from '@/config';
 
 interface Note {
   id: string;
@@ -32,7 +32,7 @@ export default function NotePage() {
     async function fetchNote() {
       try {
         const response = await fetch(
-          `https://zennote-worker.shivansh-karan.workers.dev/notes/${id}`,
+          `${config.api.baseUrl}${config.api.endpoints.note(id as string)}`,
         );
 
         if (!response.ok) {
@@ -54,15 +54,7 @@ export default function NotePage() {
   }, [id]);
 
   return (
-    <main className="flex-1 container mx-auto px-4 py-8 md:py-16 max-w-4xl">
-      {/*<Link*/}
-      {/*  href="/"*/}
-      {/*  className="flex items-center mb-6 text-muted-foreground hover:text-foreground"*/}
-      {/*>*/}
-      {/*  <ArrowLeft className="mr-2 h-4 w-4" />*/}
-      {/*  Back to notes*/}
-      {/*</Link>*/}
-
+    <main className="flex-1 container mx-auto px-4 py-8 md:py-16 max-w-5xl">
       {loading && <p className="text-center py-10">Loading note...</p>}
 
       {error && (
@@ -74,19 +66,35 @@ export default function NotePage() {
       {note && (
         <div>
           <div className="mb-6">
-            <h1 className="text-3xl font-bold mb-2">{note.title}</h1>
-            <div className="text-sm text-muted-foreground">
-              Last updated: {new Date(note.updated_at).toLocaleDateString()}
+            <div className="mb-6 flex justify-between items-start">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">{note.title}</h1>
+                <div className="text-sm text-muted-foreground">
+                  Last updated: {new Date(note.updated_at).toLocaleDateString()}
+                </div>
+              </div>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success('Link copied to clipboard');
+                }}
+                variant={'secondary'}
+                aria-label="Copy link"
+                title="Copy link to clipboard"
+                className={'cursor-pointer'}
+              >
+                <Link />
+              </Button>
             </div>
           </div>
           <div className="bg-card rounded-lg shadow-sm p-6">
             <div
               className="prose prose-zinc dark:prose-invert max-w-none
-                                    prose-headings:font-bold prose-a:text-blue-600
-                                    prose-ul:list-disc prose-ol:list-decimal
-                                    prose-li:my-1 prose-p:my-2
-                                    prose-h1:mt-8 prose-h1:mb-4 prose-h2:mt-6 prose-h2:mb-3
-                                    prose-h3:mt-4 prose-h3:mb-2"
+                         prose-headings:font-bold prose-a:text-blue-600
+                         prose-ul:list-disc prose-ol:list-decimal
+                         prose-li:my-1 prose-p:my-2
+                         prose-h1:mt-8 prose-h1:mb-4 prose-h2:mt-6 prose-h2:mb-3
+                         prose-h3:mt-4 prose-h3:mb-2"
             >
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkBreaks]}
