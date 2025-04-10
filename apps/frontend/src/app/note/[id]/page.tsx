@@ -20,6 +20,8 @@ interface Note {
   updated_at: string;
 }
 
+export const runtime = 'edge';
+
 export default function NotePage() {
   const { id } = useParams();
   const [note, setNote] = useState<Note | null>(null);
