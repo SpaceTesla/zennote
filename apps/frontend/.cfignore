@@ -1,0 +1,39 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore build cache and unnecessary folders
+.next/cache/
+.next/trace/
+.next/**/*.map
+.vercel/
+.vscode/
+.idea/
+out/         # Only if you're not using next export
+*.log
+*.env
+.env.*
+.git/
+coverage/
+tests/
+test/
+__tests__/
+
+# Ignore miscellaneous junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.bak
+
+# Additional exclusions to reduce build size
+.next/analyze/    # Bundle analysis output
+README.md         # Documentation files
+CHANGELOG.md
+LICENSE
+.github/
+.husky/           # Git hooks
+tsconfig.tsbuildinfo
+public/**/*.psd   # Source image files
+public/**/*.ai
+public/**/*.sketch
