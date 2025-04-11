@@ -28,7 +28,7 @@ export default function Footer() {
             <Github size={20} strokeWidth={2.5} />
           </Link>
           <Link
-            href="https://linkedin.com/in/your-username"
+            href="https://linkedin.com/in/shivansh-karan/"
             aria-label="LinkedIn"
             className="text-zinc-500 hover:text-primary transition-colors"
             target="_blank"
@@ -37,7 +37,7 @@ export default function Footer() {
             <Linkedin size={20} strokeWidth={2.5} />
           </Link>
           <Link
-            href="https://medium.com/@your-username"
+            href="https://medium.com/@SpaceTesla"
             aria-label="Medium"
             className="text-zinc-500 hover:text-primary transition-colors"
             target="_blank"
@@ -46,7 +46,7 @@ export default function Footer() {
             <BookOpen size={20} strokeWidth={2.5} />
           </Link>
           <Link
-            href="https://instagram.com/your-username"
+            href="https://instagram.com/shivanshk.dev"
             aria-label="Instagram"
             className="text-zinc-500 hover:text-primary transition-colors"
             target="_blank"
