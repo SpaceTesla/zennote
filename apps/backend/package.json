@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +15,13 @@
   "type": "commonjs",
   "dependencies": {
     "@cloudflare/workers-types": "^4.20250410.0",
-    "wrangler": "^4.9.1"
+    "wrangler": "^4.9.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.4",
+    "@cloudflare/vitest-pool-workers": "^0.4.0",
+    "@types/node": "^20.11.5",
+    "typescript": "^5.3.3"
   }
 }

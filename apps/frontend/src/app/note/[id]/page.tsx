@@ -20,8 +20,6 @@ interface Note {
   updated_at: string;
 }
 
-export const runtime = 'edge';
-
 export default function NotePage() {
   const { id } = useParams();
   const [note, setNote] = useState<Note | null>(null);
@@ -32,7 +30,7 @@ export default function NotePage() {
     async function fetchNote() {
       try {
         const response = await fetch(
-          `${config.api.baseUrl}${config.api.endpoints.note(id as string)}`,
+          `${config.api.baseUrl}${config.api.endpoints.notes.get(id as string)}`,
         );
 
         if (!response.ok) {
