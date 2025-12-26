@@ -7,7 +7,8 @@ node_modules/
 .next/**/*.map
 .vscode/
 .idea/
-out/         # Only if you're not using next export
+out/         # Static export output (not used with @cloudflare/next-on-pages)
+.vercel/     # Vercel output (used by @cloudflare/next-on-pages)
 *.log
 *.env
 .env.*

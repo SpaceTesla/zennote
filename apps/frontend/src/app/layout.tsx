@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from 'sonner';
 import './globals.css';
 import Footer from '@/components/footer';
-import Header from '@/components/header';
+import { Header } from '@/components/layout/header';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,20 +29,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased transition duration-300`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          {children}
-          <Footer />
-          <Toaster />
+          <AuthProvider>
+            <Header />
+            {children}
+            <Footer />
+            <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

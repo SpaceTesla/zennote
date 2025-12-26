@@ -1,8 +1,27 @@
 name = "zennote-worker"
 main = "src/index.ts"
 compatibility_date = "2024-04-06"
+compatibility_flags = ["nodejs_compat"]
 
 [[d1_databases]]
 binding = "DB"
 database_name = "zennote-d1"
 database_id = "e65cd6ee-6507-4662-8aec-287a0e5f3f4e"
+
+# KV namespace for caching and rate limiting
+[[kv_namespaces]]
+binding = "CACHE_KV"
+id = "c16b74a0db8b4306a084f863a611b9ae"
+preview_id = "4ec0acf237ff4b0ebd94607a5feb7a35"
+
+# Cron triggers for cleanup
+[triggers]
+crons = ["0 0 * * *"] # Daily at midnight UTC
+
+# Environment variables
+[vars]
+API_VERSION = "1"
+CORS_ORIGIN = "*" # Change in production
+
+# Secrets (set via wrangler secret put)
+# JWT_SECRET - Required for authentication
