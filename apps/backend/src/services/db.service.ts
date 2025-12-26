@@ -15,11 +15,24 @@ export class DbService {
       }
       return await stmt.all<T>();
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      // Check for common D1 database errors
+      if (errorMessage.includes('no such table') || errorMessage.includes('does not exist')) {
+        throw createError(
+          ErrorCode.DATABASE_ERROR,
+          'Database schema not initialized. Please run migrations.',
+          503,
+          { 
+            error: errorMessage,
+            hint: 'Run: npm run db:migrate'
+          }
+        );
+      }
       throw createError(
         ErrorCode.DATABASE_ERROR,
         'Database query failed',
         500,
-        { error: error instanceof Error ? error.message : String(error) }
+        { error: errorMessage }
       );
     }
   }
@@ -40,11 +53,24 @@ export class DbService {
       }
       return await stmt.run();
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      // Check for common D1 database errors
+      if (errorMessage.includes('no such table') || errorMessage.includes('does not exist')) {
+        throw createError(
+          ErrorCode.DATABASE_ERROR,
+          'Database schema not initialized. Please run migrations.',
+          503,
+          { 
+            error: errorMessage,
+            hint: 'Run: npm run db:migrate'
+          }
+        );
+      }
       throw createError(
         ErrorCode.DATABASE_ERROR,
         'Database execution failed',
         500,
-        { error: error instanceof Error ? error.message : String(error) }
+        { error: errorMessage }
       );
     }
   }
