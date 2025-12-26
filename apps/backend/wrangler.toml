@@ -6,7 +6,7 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "zennote-d1"
-database_id = "e65cd6ee-6507-4662-8aec-287a0e5f3f4e"
+database_id = "8da5eb1f-a1aa-4a13-bf69-68c119275337"
 
 # KV namespace for caching and rate limiting
 [[kv_namespaces]]
