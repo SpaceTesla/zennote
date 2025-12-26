@@ -7,7 +7,13 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "db:create": "wrangler d1 create zennote-d1",
+    "db:migrate": "wrangler d1 execute zennote-d1 --remote --file=./migrations/001_init.sql && wrangler d1 execute zennote-d1 --remote --file=./migrations/002_add_auth.sql",
+    "db:migrate:local": "wrangler d1 execute zennote-d1 --local --file=./migrations/001_init.sql && wrangler d1 execute zennote-d1 --local --file=./migrations/002_add_auth.sql",
+    "db:setup": "npm run db:create && npm run db:migrate",
+    "db:check": "node scripts/check-db.js",
+    "db:list": "wrangler d1 list"
   },
   "keywords": [],
   "author": "",
