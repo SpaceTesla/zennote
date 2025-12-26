@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { config } from '@/config';
 
+export const runtime = 'edge';
+
 interface Note {
   id: string;
   title: string;

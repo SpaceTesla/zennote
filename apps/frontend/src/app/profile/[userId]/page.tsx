@@ -8,6 +8,8 @@ import { profilesApi } from '@/lib/api/profiles';
 import { UserProfile } from '@/types/profile';
 import { useState } from 'react';
 
+export const runtime = 'edge';
+
 export default function ProfilePage() {
   const params = useParams();
   const userId = params.userId as string;
