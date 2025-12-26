@@ -11,6 +11,8 @@ import { Share2, Edit, Lock, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
+export const runtime = 'edge';
+
 export default function ViewNotePage() {
   const params = useParams();
   const noteId = params.id as string;

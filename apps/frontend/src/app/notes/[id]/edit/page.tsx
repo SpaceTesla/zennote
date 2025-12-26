@@ -10,6 +10,8 @@ import { toast } from 'sonner';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { Skeleton } from '@/components/ui/skeleton';
 
+export const runtime = 'edge';
+
 export default function EditNotePage() {
   const params = useParams();
   const router = useRouter();
