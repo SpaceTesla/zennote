@@ -51,6 +51,11 @@ export const authApi = {
       throw new Error(response.error?.message || 'Failed to get current user');
     }
 
+    // Validate that user has required fields
+    if (!response.data.user || !response.data.user.id) {
+      throw new Error('Invalid user data received');
+    }
+
     return response.data;
   },
 
