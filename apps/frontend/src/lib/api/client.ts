@@ -84,6 +84,21 @@ class ApiClient {
 
   private getToken(): string | null {
     if (typeof window === 'undefined') return null;
+    
+    // First check Zustand auth store (single source of truth)
+    try {
+      const authStorage = localStorage.getItem('auth-storage');
+      if (authStorage) {
+        const parsed = JSON.parse(authStorage);
+        if (parsed?.state?.token) {
+          return parsed.state.token;
+        }
+      }
+    } catch (e) {
+      // Ignore parse errors
+    }
+    
+    // Fallback to legacy localStorage key for backward compatibility
     return localStorage.getItem('auth_token');
   }
 

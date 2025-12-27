@@ -33,6 +33,11 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await authApi.login({ email, password, rememberMe });
+          // Token is already set in apiClient by authApi.login, but ensure sync
+          if (response.token && typeof window !== 'undefined') {
+            const { apiClient } = await import('../api/client');
+            apiClient.setToken(response.token);
+          }
           set({
             user: response.user,
             profile: response.profile,
@@ -56,6 +61,11 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         try {
           const response = await authApi.register({ email, password, confirmPassword: password });
+          // Token is already set in apiClient by authApi.register, but ensure sync
+          if (response.token && typeof window !== 'undefined') {
+            const { apiClient } = await import('../api/client');
+            apiClient.setToken(response.token);
+          }
           set({
             user: response.user,
             profile: response.profile,
@@ -77,6 +87,12 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         authApi.logout();
+        // Also clear from apiClient
+        if (typeof window !== 'undefined') {
+          import('../api/client').then(({ apiClient }) => {
+            apiClient.removeToken();
+          });
+        }
         set({
           user: null,
           profile: null,
@@ -91,6 +107,12 @@ export const useAuthStore = create<AuthState>()(
         if (!token) {
           set({ isAuthenticated: false });
           return;
+        }
+
+        // Sync token to apiClient to ensure it's available for requests
+        if (token && typeof window !== 'undefined') {
+          const { apiClient } = await import('../api/client');
+          apiClient.setToken(token);
         }
 
         set({ isLoading: true });
@@ -113,6 +135,11 @@ export const useAuthStore = create<AuthState>()(
             isLoading: false,
             error: null,
           });
+          // Also clear from apiClient
+          if (typeof window !== 'undefined') {
+            const { apiClient } = await import('../api/client');
+            apiClient.removeToken();
+          }
         }
       },
 
