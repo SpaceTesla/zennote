@@ -33,6 +33,7 @@ const querySchema = z.object({
     .optional()
     .default('created_at'),
   sortOrder: z.enum(['ASC', 'DESC']).nullable().optional().default('DESC'),
+  userId: z.string().uuid().nullable().optional(),
 });
 
 export async function handleGetNotes(
@@ -48,6 +49,7 @@ export async function handleGetNotes(
         search: url.searchParams.get('search'),
         sortBy: url.searchParams.get('sortBy'),
         sortOrder: url.searchParams.get('sortOrder'),
+        userId: url.searchParams.get('userId'),
       },
       querySchema
     );
@@ -56,14 +58,17 @@ export async function handleGetNotes(
     const cacheService = new CacheService(env.CACHE_KV);
     const noteService = new NoteService(dbService, cacheService);
 
-    const userId = user ? toUserId(user.id) : null;
+    const currentUserId = user ? toUserId(user.id) : null;
+    const filterByUserId = params.userId ? toUserId(params.userId) : undefined;
+
     const result = await noteService.getAllNotes(
-      userId,
+      currentUserId,
       params.page,
       params.limit,
       params.search,
       params.sortBy,
-      params.sortOrder
+      params.sortOrder,
+      filterByUserId
     );
 
     return responseFormatter(
