@@ -246,9 +246,9 @@ Manually trigger cleanup of expired temporary notes.
 ## Rate Limiting
 
 Rate limits are applied per IP address:
-- Login: 5 requests per minute
-- Register: 3 requests per hour
-- Default: 100 requests per minute
+- Login: 30 requests per minute
+- Register: 20 requests per minute
+- Default: 200 requests per minute
 
 Rate limit headers are included in responses:
 - `X-RateLimit-Limit`

@@ -8,9 +8,9 @@ interface RateLimitConfig {
 }
 
 const DEFAULT_LIMITS: Record<string, RateLimitConfig> = {
-  '/v1/auth/login': { window: 60, maxRequests: 5 },
-  '/v1/auth/register': { window: 3600, maxRequests: 3 },
-  default: { window: 60, maxRequests: 100 },
+  '/v1/auth/login': { window: 60, maxRequests: 30 },
+  '/v1/auth/register': { window: 60, maxRequests: 20 },
+  default: { window: 60, maxRequests: 200 },
 };
 
 export async function rateLimitMiddleware(
