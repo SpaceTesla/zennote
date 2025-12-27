@@ -1,5 +1,5 @@
 import * as React from "react"
-import { HugeiconsIcon } from "@hugeicons/react"
+import { HugeiconsIcon, IconSvgElement } from "@hugeicons/react"
 import {
   Add01Icon,
   Alert01Icon,
@@ -50,7 +50,7 @@ import {
 
 type IconProps = Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">
 
-const withIcon = (icon: unknown) => (props: IconProps) =>
+const withIcon = (icon: IconSvgElement) => (props: IconProps) =>
   <HugeiconsIcon icon={icon} {...props} />
 
 export const FileText = withIcon(File01Icon)
@@ -104,6 +104,7 @@ export const Heading2 = withIcon(Heading02Icon)
 export const List = withIcon(LeftToRightListBulletIcon)
 export const Quote = withIcon(QuoteUpCircleIcon)
 export const Image = withIcon(Image01Icon)
+export const MoreVertical = withIcon(MoreVerticalIcon)
 
 export type { IconProps }
 
