@@ -19,10 +19,13 @@ export async function handleRegister(
     const input = await parseBody(request, registerSchema);
 
     const dbService = new DbService(env.DB);
+    const cacheService = new CacheService(env.CACHE_KV);
     const authService = new AuthService(dbService, env.JWT_SECRET);
+    const profileService = new ProfileService(dbService, cacheService);
 
     const user = await authService.registerUser(input);
     const token = await authService.generateToken(user.id, user.email);
+    const profile = await profileService.getProfile(toUserId(user.id));
 
     const response = responseFormatter(
       context,
@@ -31,7 +34,10 @@ export async function handleRegister(
         user: {
           id: user.id,
           email: user.email,
+          created_at: user.created_at,
+          updated_at: user.updated_at,
         },
+        profile: profile || null,
       },
       201
     );
@@ -55,10 +61,13 @@ export async function handleLogin(
     const input = await parseBody(request, loginSchema);
 
     const dbService = new DbService(env.DB);
+    const cacheService = new CacheService(env.CACHE_KV);
     const authService = new AuthService(dbService, env.JWT_SECRET);
+    const profileService = new ProfileService(dbService, cacheService);
 
     const user = await authService.loginUser(input);
     const token = await authService.generateToken(user.id, user.email);
+    const profile = await profileService.getProfile(toUserId(user.id));
 
     return responseFormatter(
       context,
@@ -67,7 +76,10 @@ export async function handleLogin(
         user: {
           id: user.id,
           email: user.email,
+          created_at: user.created_at,
+          updated_at: user.updated_at,
         },
+        profile: profile || null,
       },
       200
     );
@@ -88,15 +100,27 @@ export async function handleMe(
     const dbService = new DbService(env.DB);
     const cacheService = new CacheService(env.CACHE_KV);
     const profileService = new ProfileService(dbService, cacheService);
+    const authService = new AuthService(dbService, env.JWT_SECRET);
 
     const userId = toUserId(user.id);
+    
+    // Get full user data from database
+    const fullUser = await authService.getUserById(userId);
+    if (!fullUser) {
+      throw new Error('User not found');
+    }
+
     const profile = await profileService.getProfile(userId);
 
     return responseFormatter(
       context,
       {
-        id: user.id,
-        email: user.email,
+        user: {
+          id: fullUser.id,
+          email: fullUser.email,
+          created_at: fullUser.created_at,
+          updated_at: fullUser.updated_at,
+        },
         profile: profile || null,
       },
       200

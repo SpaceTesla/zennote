@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { profilesApi } from '@/lib/api/profiles';
@@ -18,14 +18,28 @@ export default function ProfilePage() {
   const params = useParams();
   const userId = params.userId as string;
   const { user: currentUser } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
 
+  // Redirect if userId is undefined or invalid
+  useEffect(() => {
+    if (!userId || userId === 'undefined') {
+      if (currentUser?.id) {
+        router.replace(`/profile/${currentUser.id}`);
+      } else {
+        router.replace('/');
+      }
+    }
+  }, [userId, currentUser?.id, router]);
+
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!userId || userId === 'undefined') return;
+      
       try {
         const data = await profilesApi.getProfile(userId);
         setProfile(data);
@@ -36,13 +50,15 @@ export default function ProfilePage() {
       }
     };
 
-    if (userId) {
+    if (userId && userId !== 'undefined') {
       fetchProfile();
     }
   }, [userId]);
 
   useEffect(() => {
     const fetchNotes = async () => {
+      if (!userId || userId === 'undefined') return;
+      
       try {
         const response = await notesApi.getNotes({
           userId,
@@ -60,7 +76,7 @@ export default function ProfilePage() {
       }
     };
 
-    if (userId) {
+    if (userId && userId !== 'undefined') {
       fetchNotes();
     }
   }, [userId]);
