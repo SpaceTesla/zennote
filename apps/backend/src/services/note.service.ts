@@ -26,7 +26,8 @@ export class NoteService {
     limit: number = 20,
     search?: string,
     sortBy: string = 'created_at',
-    sortOrder: 'ASC' | 'DESC' = 'DESC'
+    sortOrder: 'ASC' | 'DESC' = 'DESC',
+    filterByUserId?: UserId
   ): Promise<{ notes: NoteWithAccess[]; total: number }> {
     const offset = (page - 1) * limit;
     const now = new Date().toISOString();
@@ -40,8 +41,19 @@ export class NoteService {
       params.push(searchTerm, searchTerm);
     }
 
-    // If user is authenticated, show their notes and public notes
-    if (userId) {
+    // If filtering by a specific user ID (for profile pages)
+    if (filterByUserId) {
+      if (filterByUserId === userId) {
+        // Viewing own profile: show all notes (public + private)
+        whereClause += ` AND id IN (SELECT note_id FROM user_notes WHERE user_id = ?)`;
+        params.push(filterByUserId);
+      } else {
+        // Viewing another user's profile: show only their public notes
+        whereClause += ` AND is_public = 1 AND id IN (SELECT note_id FROM user_notes WHERE user_id = ?)`;
+        params.push(filterByUserId);
+      }
+    } else if (userId) {
+      // If user is authenticated, show their notes and public notes
       whereClause += ` AND (
         is_public = 1 OR 
         id IN (SELECT note_id FROM user_notes WHERE user_id = ?) OR

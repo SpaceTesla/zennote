@@ -11,6 +11,7 @@ export const notesApi = {
     if (params?.search) queryParams.append('search', params.search);
     if (params?.sortBy) queryParams.append('sortBy', params.sortBy);
     if (params?.sortOrder) queryParams.append('sortOrder', params.sortOrder);
+    if (params?.userId) queryParams.append('userId', params.userId);
 
     const url = `${config.api.endpoints.notes.list}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
     const response = await apiClient.get<Note[]>(url);

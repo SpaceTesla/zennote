@@ -43,5 +43,6 @@ export interface NotesQueryParams {
   search?: string;
   sortBy?: 'created_at' | 'updated_at' | 'title';
   sortOrder?: 'asc' | 'desc';
+  userId?: string;
 }
 
