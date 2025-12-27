@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { NoteAccess } from '@/types/note';
-import { X } from 'lucide-react';
+import { X } from '@/components/ui/hugeicons';
 import { toast } from 'sonner';
 
 interface CollaboratorListProps {

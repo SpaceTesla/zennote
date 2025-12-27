@@ -72,9 +72,9 @@ export default function EditNotePage() {
   if (isLoading || !currentNote) {
     return (
       <ProtectedRoute>
-        <div className="container mx-auto px-4 py-4 h-[calc(100vh-120px)]">
-          <Skeleton className="h-8 w-64 mb-4" />
-          <Skeleton className="h-[calc(100%-80px)] w-full" />
+        <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-[calc(100%-80px)] w-full rounded-2xl" />
         </div>
       </ProtectedRoute>
     );
@@ -82,9 +82,14 @@ export default function EditNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto px-4 py-4 h-[calc(100vh-120px)]">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">Edit Note</h1>
+      <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4 max-w-6xl">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
+              Edit
+            </span>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Edit Note</h1>
+          </div>
           <NoteSettings
             title={title}
             isPublic={isPublic}
@@ -101,7 +106,7 @@ export default function EditNotePage() {
           onSave={handleSave}
           onCancel={handleCancel}
           isLoading={isLoading}
-          className="border rounded-lg"
+          className="border border-border/70 rounded-2xl shadow-card-ambient"
         />
       </div>
     </ProtectedRoute>

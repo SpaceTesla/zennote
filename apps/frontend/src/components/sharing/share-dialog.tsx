@@ -15,7 +15,7 @@ import {
 import { PermissionSelector } from './permission-selector';
 import { CollaboratorList } from './collaborator-list';
 import { PermissionLevel } from '@/types/note';
-import { Share2 } from 'lucide-react';
+import { Share2 } from '@/components/ui/hugeicons';
 import { toast } from 'sonner';
 
 interface ShareDialogProps {

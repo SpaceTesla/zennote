@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { UserProfile } from '@/types/profile';
 import { SocialLinks } from './social-links';
-import { Edit } from 'lucide-react';
+import { Edit } from '@/components/ui/hugeicons';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/use-auth';
 

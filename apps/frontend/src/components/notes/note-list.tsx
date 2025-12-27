@@ -5,7 +5,7 @@ import { NoteCard } from './note-card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { PaginationMeta } from '@/types/api';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from '@/components/ui/hugeicons';
 
 interface NoteListProps {
   notes: Note[];

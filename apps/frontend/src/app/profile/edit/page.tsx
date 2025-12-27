@@ -41,8 +41,8 @@ export default function EditProfilePage() {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <main className="container mx-auto px-4 py-8 max-w-2xl">
-          <Skeleton className="h-64 w-full" />
+        <main className="container mx-auto px-4 py-12 max-w-2xl">
+          <Skeleton className="h-64 w-full rounded-2xl" />
         </main>
       </ProtectedRoute>
     );
@@ -50,10 +50,10 @@ export default function EditProfilePage() {
 
   return (
     <ProtectedRoute>
-      <main className="container mx-auto px-4 py-8 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Profile</CardTitle>
+      <main className="container mx-auto px-4 py-12 max-w-2xl">
+        <Card className="border border-border/70 bg-white/75 dark:bg-background/70 backdrop-blur-xl shadow-card-ambient">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-2xl font-bold tracking-tight">Edit Profile</CardTitle>
             <CardDescription>Update your profile information</CardDescription>
           </CardHeader>
           <CardContent>

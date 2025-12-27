@@ -1,7 +1,7 @@
 'use client';
 
 import { SocialLink } from '@/types/profile';
-import { Github, Twitter, Linkedin, Instagram, Youtube, Globe } from 'lucide-react';
+import { Github, Twitter, Linkedin, Instagram, Youtube, Globe } from '@/components/ui/hugeicons';
 import Link from 'next/link';
 
 interface SocialLinksProps {

@@ -19,6 +19,9 @@ const config = {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'Zen Kaku Gothic New', 'system-ui', 'sans-serif'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -58,6 +61,17 @@ const config = {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+        xl: 'calc(var(--radius) + 4px)',
+      },
+      boxShadow: {
+        glow: '0 10px 40px -18px hsl(var(--ring) / 0.35)',
+        'card-ambient': '0 22px 70px -32px hsl(var(--foreground) / 0.12)',
+      },
+      backgroundImage: {
+        'glass-amber':
+          'linear-gradient(135deg, hsla(38,92%,50%,0.16), hsla(38,92%,50%,0.04))',
+        'gradient-amber':
+          'linear-gradient(120deg, hsl(38 92% 55%), hsl(24 90% 55%))',
       },
       keyframes: {
         'accordion-down': {
@@ -68,10 +82,15 @@ const config = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        'float-soft': {
+          '0%,100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-4px)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'float-soft': 'float-soft 6s ease-in-out infinite',
       },
     },
   },

@@ -6,14 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Note } from '@/types/note';
 import { format } from 'date-fns';
-import { Globe, Lock, Edit, Trash2, Share2 } from 'lucide-react';
+import { Globe, Lock, Edit, Trash2, Share2, MoreVertical } from '@/components/ui/hugeicons';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical } from 'lucide-react';
 
 interface NoteCardProps {
   note: Note;

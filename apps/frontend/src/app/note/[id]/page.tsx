@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Link } from 'lucide-react';
+import { Link } from '@/components/ui/hugeicons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -54,20 +54,23 @@ export default function NotePage() {
   }, [id]);
 
   return (
-    <main className="flex-1 container mx-auto px-4 py-8 md:py-16 max-w-5xl">
+    <main className="flex-1 container mx-auto px-4 py-12 md:py-16 max-w-5xl space-y-6">
       {loading && <p className="text-center py-10">Loading note...</p>}
 
       {error && (
-        <div className="bg-destructive/10 border border-destructive text-destructive p-4 rounded-md">
+        <div className="bg-destructive/10 border border-destructive text-destructive p-4 rounded-xl">
           {error}
         </div>
       )}
 
       {note && (
-        <div>
-          <div className="mb-6">
-            <div className="mb-6 flex justify-between items-start">
+        <div className="space-y-4">
+          <div className="rounded-2xl border border-border/70 bg-white/70 dark:bg-background/70 backdrop-blur-xl p-6 shadow-card-ambient">
+            <div className="flex justify-between items-start gap-4 flex-wrap">
               <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary mb-2">
+                  Public note
+                </div>
                 <h1 className="text-3xl font-bold mb-2">{note.title}</h1>
                 <div className="text-sm text-muted-foreground">
                   Last updated: {new Date(note.updated_at).toLocaleDateString()}
@@ -78,24 +81,18 @@ export default function NotePage() {
                   navigator.clipboard.writeText(window.location.href);
                   toast.success('Link copied to clipboard');
                 }}
-                variant={'secondary'}
+                variant="outline"
                 aria-label="Copy link"
                 title="Copy link to clipboard"
-                className={'cursor-pointer'}
+                className="cursor-pointer"
               >
-                <Link />
+                <Link className="h-4 w-4 mr-2" />
+                Copy link
               </Button>
             </div>
           </div>
-          <div className="bg-card rounded-lg shadow-sm p-6">
-            <div
-              className="prose prose-zinc dark:prose-invert max-w-none
-                         prose-headings:font-bold prose-a:text-blue-600
-                         prose-ul:list-disc prose-ol:list-decimal
-                         prose-li:my-1 prose-p:my-2
-                         prose-h1:mt-8 prose-h1:mb-4 prose-h2:mt-6 prose-h2:mb-3
-                         prose-h3:mt-4 prose-h3:mb-2"
-            >
+          <div className="bg-white/70 dark:bg-background/60 backdrop-blur-xl border border-border/70 rounded-2xl shadow-card-ambient p-6">
+            <div className="prose prose-zinc dark:prose-invert max-w-none prose-headings:font-bold prose-a:text-primary prose-ul:list-disc prose-ol:list-decimal prose-li:my-1 prose-p:my-2 prose-h1:mt-8 prose-h1:mb-4 prose-h2:mt-6 prose-h2:mb-3 prose-h3:mt-4 prose-h3:mb-2">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm, remarkBreaks]}
                 rehypePlugins={[rehypeHighlight]}

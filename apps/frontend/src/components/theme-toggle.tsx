@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun } from '@/components/ui/hugeicons';
 import { useEffect, useState } from 'react';
 
 export function ThemeToggle() {
