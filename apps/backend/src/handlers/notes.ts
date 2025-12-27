@@ -32,7 +32,16 @@ const querySchema = z.object({
     .nullable()
     .optional()
     .default('created_at'),
-  sortOrder: z.enum(['ASC', 'DESC']).nullable().optional().default('DESC'),
+  sortOrder: z
+    .string()
+    .nullable()
+    .optional()
+    .transform((val): 'ASC' | 'DESC' => {
+      if (!val) return 'DESC';
+      const upper = val.toUpperCase();
+      return (upper === 'ASC' || upper === 'DESC' ? upper : 'DESC') as 'ASC' | 'DESC';
+    })
+    .default('DESC'),
   userId: z.string().uuid().nullable().optional(),
 });
 
