@@ -11,7 +11,11 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
-  login: (email: string, password: string, rememberMe?: boolean) => Promise<void>;
+  login: (
+    email: string,
+    password: string,
+    rememberMe?: boolean
+  ) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
   checkAuth: () => Promise<void>;
@@ -47,7 +51,8 @@ export const useAuthStore = create<AuthState>()(
             error: null,
           });
         } catch (error) {
-          const message = error instanceof ApiError ? error.message : 'Login failed';
+          const message =
+            error instanceof ApiError ? error.message : 'Login failed';
           set({
             isLoading: false,
             error: message,
@@ -60,7 +65,11 @@ export const useAuthStore = create<AuthState>()(
       register: async (email: string, password: string) => {
         set({ isLoading: true, error: null });
         try {
-          const response = await authApi.register({ email, password, confirmPassword: password });
+          const response = await authApi.register({
+            email,
+            password,
+            confirmPassword: password,
+          });
           // Token is already set in apiClient by authApi.register, but ensure sync
           if (response.token && typeof window !== 'undefined') {
             const { apiClient } = await import('../api/client');
@@ -75,7 +84,8 @@ export const useAuthStore = create<AuthState>()(
             error: null,
           });
         } catch (error) {
-          const message = error instanceof ApiError ? error.message : 'Registration failed';
+          const message =
+            error instanceof ApiError ? error.message : 'Registration failed';
           set({
             isLoading: false,
             error: message,
@@ -103,7 +113,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       checkAuth: async () => {
-        const { token } = get();
+        const { token, user: existingUser } = get();
         if (!token) {
           set({ isAuthenticated: false });
           return;
@@ -118,27 +128,52 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const { user, profile } = await authApi.getCurrentUser();
-          set({
-            user,
-            profile,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          });
+          // Only update if we got a valid user with an id
+          if (user && user.id) {
+            set({
+              user,
+              profile,
+              isAuthenticated: true,
+              isLoading: false,
+              error: null,
+            });
+          } else {
+            // Invalid user response, but don't clear if we have existing user
+            // (might be a temporary network issue)
+            if (!existingUser) {
+              set({
+                user: null,
+                profile: null,
+                token: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+              });
+            } else {
+              set({ isLoading: false });
+            }
+          }
         } catch (error) {
-          // Token is invalid, clear auth state
-          set({
-            user: null,
-            profile: null,
-            token: null,
-            isAuthenticated: false,
-            isLoading: false,
-            error: null,
-          });
-          // Also clear from apiClient
-          if (typeof window !== 'undefined') {
-            const { apiClient } = await import('../api/client');
-            apiClient.removeToken();
+          // Only clear auth state if we don't have an existing user
+          // This prevents clearing on temporary network errors
+          const currentState = get();
+          if (!currentState.user || !currentState.user.id) {
+            set({
+              user: null,
+              profile: null,
+              token: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: null,
+            });
+            // Also clear from apiClient
+            if (typeof window !== 'undefined') {
+              const { apiClient } = await import('../api/client');
+              apiClient.removeToken();
+            }
+          } else {
+            // Keep existing user, just mark as not loading
+            set({ isLoading: false });
           }
         }
       },
@@ -171,4 +206,3 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
-

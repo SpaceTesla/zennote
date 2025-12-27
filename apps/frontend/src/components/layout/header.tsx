@@ -74,12 +74,19 @@ export function Header() {
                     <p className="text-xs text-muted-foreground">{user?.email}</p>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href={`/profile/${user?.id}`}>
+                  {user?.id ? (
+                    <DropdownMenuItem asChild>
+                      <Link href={`/profile/${user.id}`}>
+                        <User className="h-4 w-4 mr-2" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem disabled>
                       <User className="h-4 w-4 mr-2" />
                       Profile
-                    </Link>
-                  </DropdownMenuItem>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link href="/profile/edit">
                       <Settings className="h-4 w-4 mr-2" />
