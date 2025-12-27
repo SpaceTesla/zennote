@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sparkles } from 'lucide-react';
+import { Sparkles } from '@/components/ui/hugeicons';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { config } from '@/config';

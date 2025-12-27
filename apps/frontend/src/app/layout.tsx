@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Inter, JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from 'sonner';
 import './globals.css';
@@ -7,14 +7,16 @@ import Footer from '@/components/footer';
 import { Header } from '@/components/layout/header';
 import { AuthProvider } from '@/components/auth/auth-provider';
 
-const geistSans = Geist({
+const inter = Inter({
   variable: '--font-geist-sans',
   subsets: ['latin'],
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -31,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground`}
       >
         <ThemeProvider
           attribute="class"

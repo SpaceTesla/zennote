@@ -13,7 +13,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/lib/hooks/use-auth';
-import { User, LogOut, Settings, FileText } from 'lucide-react';
+import { User, LogOut, Settings, FileText } from '@/components/ui/hugeicons';
 
 export function Header() {
   const router = useRouter();
@@ -40,28 +40,31 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <nav className="container mx-auto px-4 py-3 flex items-center justify-between max-w-7xl">
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-semibold text-sm">Z</span>
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-white/60 dark:bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-card-ambient">
+      <nav className="container mx-auto px-4 py-4 flex items-center justify-between max-w-7xl">
+        <Link href="/" className="flex items-center space-x-3">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/90 via-primary to-amber-400 shadow-glow flex items-center justify-center">
+            <span className="text-primary-foreground font-semibold text-sm">ZN</span>
           </div>
-          <span className="font-semibold text-lg">ZenNote</span>
+          <div className="flex flex-col leading-tight">
+            <span className="font-semibold text-lg tracking-tight">Zennote</span>
+            <span className="text-xs text-muted-foreground">Markdown, polished.</span>
+          </div>
         </Link>
 
         <div className="flex items-center gap-4">
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" asChild>
+              <Button variant="ghost" asChild className="px-3 hover:bg-amber-500/10">
                 <Link href="/notes">
-                  <FileText className="h-4 w-4 mr-2" />
+                  <FileText className="h-4 w-4 mr-2 text-primary" />
                   Notes
                 </Link>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
+                  <Button variant="ghost" className="relative h-9 w-9 rounded-full border border-border/70 bg-white/60 dark:bg-input/30 shadow-card-ambient">
+                    <Avatar className="h-9 w-9">
                       <AvatarFallback>{getInitials()}</AvatarFallback>
                     </Avatar>
                   </Button>
@@ -89,13 +92,13 @@ export function Header() {
                   )}
                   <DropdownMenuItem asChild>
                     <Link href="/profile/edit">
-                      <Settings className="h-4 w-4 mr-2" />
+                      <Settings className="h-4 w-4 mr-2 text-primary" />
                       Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2" />
+                    <LogOut className="h-4 w-4 mr-2 text-destructive" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>

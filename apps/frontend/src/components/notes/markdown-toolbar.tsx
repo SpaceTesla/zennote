@@ -17,7 +17,7 @@ import {
   List,
   Quote,
   Image,
-} from 'lucide-react';
+} from '@/components/ui/hugeicons';
 
 interface MarkdownToolbarProps {
   onInsert: (text: string, cursorOffset?: number) => void;

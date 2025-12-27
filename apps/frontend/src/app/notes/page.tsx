@@ -10,7 +10,7 @@ import { useNotes } from '@/lib/hooks/use-notes';
 import { useDebounce } from '@/lib/hooks/use-debounce';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { toast } from 'sonner';
-import { Plus } from 'lucide-react';
+import { Plus } from '@/components/ui/hugeicons';
 import Link from 'next/link';
 
 export default function NotesPage() {
@@ -44,17 +44,17 @@ export default function NotesPage() {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-7xl">
-      <header className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">My Notes</h1>
+    <main className="container mx-auto px-4 py-12 max-w-7xl space-y-8">
+      <header className="rounded-2xl border border-border/70 bg-white/70 dark:bg-background/70 backdrop-blur-xl p-6 shadow-card-ambient">
+        <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">My Notes</h1>
             <p className="text-muted-foreground">
-              {pagination?.total || 0} note{pagination?.total !== 1 ? 's' : ''}
+              {pagination?.total || 0} note{pagination?.total !== 1 ? 's' : ''} · crafted in Nova
             </p>
           </div>
           {isAuthenticated && (
-            <Button asChild>
+            <Button asChild size="lg" className="shadow-glow">
               <Link href="/notes/new">
                 <Plus className="h-4 w-4 mr-2" />
                 New Note
@@ -71,7 +71,7 @@ export default function NotesPage() {
         </div>
       </header>
 
-      <section aria-label="Notes list">
+      <section aria-label="Notes list" className="space-y-4">
         <NoteList
           notes={notes}
           isLoading={isLoading}

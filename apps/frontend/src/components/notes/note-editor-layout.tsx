@@ -7,7 +7,7 @@ import { MarkdownEditor } from './markdown-editor';
 import { MarkdownPreview } from './markdown-preview';
 import { useMediaQuery } from '@/lib/hooks/use-media-query';
 import { Separator } from '@/components/ui/separator';
-import { Maximize2, Minimize2 } from 'lucide-react';
+import { Maximize2, Minimize2 } from '@/components/ui/hugeicons';
 
 interface NoteEditorLayoutProps {
   content: string;

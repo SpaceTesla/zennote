@@ -101,17 +101,17 @@ export default function ProfilePage() {
 
   if (isLoadingProfile) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <Skeleton className="h-32 w-full mb-6" />
-        <Skeleton className="h-64 w-full" />
+      <main className="container mx-auto px-4 py-12 max-w-5xl space-y-4">
+        <Skeleton className="h-32 w-full mb-2 rounded-2xl" />
+        <Skeleton className="h-64 w-full rounded-2xl" />
       </main>
     );
   }
 
   if (!profile) {
     return (
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
-        <p>Profile not found</p>
+      <main className="container mx-auto px-4 py-12 max-w-5xl">
+        <p className="text-muted-foreground">Profile not found</p>
       </main>
     );
   }
@@ -119,13 +119,17 @@ export default function ProfilePage() {
   const isOwnProfile = currentUser?.id === userId;
 
   return (
-    <main className="container mx-auto px-4 py-8 max-w-4xl">
-      <ProfileHeader profile={profile} userId={userId} />
-      
-      <section className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">
-          {isOwnProfile ? 'My Notes' : 'Notes'}
-        </h2>
+    <main className="container mx-auto px-4 py-12 max-w-5xl space-y-8">
+      <div className="rounded-2xl border border-border/70 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-card-ambient p-1">
+        <ProfileHeader profile={profile} userId={userId} />
+      </div>
+
+      <section className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">
+            {isOwnProfile ? 'My Notes' : 'Notes'}
+          </h2>
+        </div>
         <NoteList
           notes={notes}
           isLoading={isLoadingNotes}

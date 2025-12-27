@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Github, Linkedin, BookOpen, Instagram } from 'lucide-react';
+import { Github, Linkedin, Instagram, Globe, BookOpen } from '@/components/ui/hugeicons';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-zinc-200 dark:border-zinc-800 py-6">
-      <div className="container mx-auto px-4 text-center text-sm text-zinc-500 dark:text-zinc-500 max-w-5xl">
-        <p>
+    <footer className="border-t border-border/60 bg-white/70 dark:bg-background/70 backdrop-blur-xl py-10">
+      <div className="container mx-auto px-4 text-center text-sm text-muted-foreground max-w-5xl space-y-4">
+        <p className="text-base text-foreground">
           © {new Date().getFullYear()}{' '}
           <Link
             href="https://github.com/SpaceTesla"
@@ -14,46 +14,53 @@ export default function Footer() {
             rel="noopener noreferrer"
           >
             SpaceTesla
-          </Link>
-          . Designed with tranquility in mind.
+          </Link>{' '}
+          — Crafted for calm, beautiful writing.
         </p>
-        <div className="mt-4 flex font-bold justify-center items-center gap-4">
+        <div className="flex font-semibold justify-center items-center gap-4">
           <Link
             href="https://github.com/SpaceTesla"
             aria-label="GitHub"
-            className="text-zinc-500 hover:text-primary transition-colors"
+            className="text-muted-foreground hover:text-primary transition-colors"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Github size={20} strokeWidth={2.5} />
+            <Github className="h-5 w-5" />
           </Link>
           <Link
             href="https://linkedin.com/in/shivansh-karan/"
             aria-label="LinkedIn"
-            className="text-zinc-500 hover:text-primary transition-colors"
+            className="text-muted-foreground hover:text-primary transition-colors"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Linkedin size={20} strokeWidth={2.5} />
+            <Linkedin className="h-5 w-5" />
           </Link>
           <Link
             href="https://medium.com/@SpaceTesla"
             aria-label="Medium"
-            className="text-zinc-500 hover:text-primary transition-colors"
+            className="text-muted-foreground hover:text-primary transition-colors"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <BookOpen size={20} strokeWidth={2.5} />
+            <BookOpen className="h-5 w-5" />
           </Link>
           <Link
             href="https://instagram.com/shivanshk.dev"
             aria-label="Instagram"
-            className="text-zinc-500 hover:text-primary transition-colors"
+            className="text-muted-foreground hover:text-primary transition-colors"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Instagram size={20} strokeWidth={2.5} />
+            <Instagram className="h-5 w-5" />
           </Link>
+        </div>
+        <div className="flex justify-center gap-2 text-xs text-muted-foreground">
+          <span>Privacy-first</span>
+          <span>•</span>
+          <span>Amber Nova theme</span>
+          <span>•</span>
+          <span>Made for focus</span>
         </div>
       </div>
     </footer>

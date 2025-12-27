@@ -12,7 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Settings, Trash2 } from 'lucide-react';
+import { Settings, Trash2 } from '@/components/ui/hugeicons';
 import {
   AlertDialog,
   AlertDialogAction,
