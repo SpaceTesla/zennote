@@ -7,13 +7,11 @@ import { responseFormatter, errorFormatter } from '../middleware/response';
 import { parseBody } from '../utils/validation';
 import { registerSchema, loginSchema } from '../schemas/auth.schema';
 import { toUserId } from '../utils/types';
+import { createError, ErrorCode } from '../utils/errors';
 
 export async function handleRegister(
   context: MiddlewareContext
 ): Promise<Response> {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/0e98af6b-b33b-4fbf-98ab-a0de336ec4fd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'handlers/auth.ts:14',message:'handleRegister entry',data:{hasCorsHeaders:!!context.corsHeaders},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-  // #endregion
   try {
     const { env, request } = context;
     const input = await parseBody(request, registerSchema);
@@ -27,7 +25,7 @@ export async function handleRegister(
     const token = await authService.generateToken(user.id, user.email);
     const profile = await profileService.getProfile(toUserId(user.id));
 
-    const response = responseFormatter(
+    return responseFormatter(
       context,
       {
         token,
@@ -41,14 +39,7 @@ export async function handleRegister(
       },
       201
     );
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/0e98af6b-b33b-4fbf-98ab-a0de336ec4fd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'handlers/auth.ts:33',message:'handleRegister response created',data:{responseHeaders:Object.fromEntries(response.headers.entries())},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-    // #endregion
-    return response;
   } catch (error) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/0e98af6b-b33b-4fbf-98ab-a0de336ec4fd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'handlers/auth.ts:36',message:'handleRegister error caught',data:{errorType:error instanceof Error?error.constructor.name:'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-    // #endregion
     return errorFormatter(context, error);
   }
 }
@@ -88,13 +79,11 @@ export async function handleLogin(
   }
 }
 
-export async function handleMe(
-  context: MiddlewareContext
-): Promise<Response> {
+export async function handleMe(context: MiddlewareContext): Promise<Response> {
   try {
     const { env, user } = context;
     if (!user) {
-      throw new Error('User not authenticated');
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not authenticated', 401);
     }
 
     const dbService = new DbService(env.DB);
@@ -103,11 +92,10 @@ export async function handleMe(
     const authService = new AuthService(dbService, env.JWT_SECRET);
 
     const userId = toUserId(user.id);
-    
-    // Get full user data from database
+
     const fullUser = await authService.getUserById(userId);
     if (!fullUser) {
-      throw new Error('User not found');
+      throw createError(ErrorCode.NOT_FOUND, 'User not found', 404);
     }
 
     const profile = await profileService.getProfile(userId);
@@ -129,4 +117,3 @@ export async function handleMe(
     return errorFormatter(context, error);
   }
 }
-
