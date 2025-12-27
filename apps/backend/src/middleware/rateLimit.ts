@@ -34,35 +34,65 @@ export async function rateLimitMiddleware(
     'unknown';
 
   const key = `ratelimit:${clientId}:${path}`;
+  const now = Math.floor(Date.now() / 1000);
   const current = await kv.get(key);
 
+  let count: number;
+  let windowStart: number;
+  let resetTime: number;
+
   if (current) {
-    const count = parseInt(current, 10);
-    if (count >= config.maxRequests) {
-      throw createError(
-        ErrorCode.RATE_LIMIT_EXCEEDED,
-        'Rate limit exceeded. Please try again later.',
-        429
-      );
+    try {
+      const data = JSON.parse(current);
+      count = data.count;
+      windowStart = data.windowStart;
+      
+      // Check if window has expired
+      if (now - windowStart >= config.window) {
+        // Window expired, start a new one
+        count = 1;
+        windowStart = now;
+        resetTime = now + config.window;
+      } else {
+        // Window still active
+        if (count >= config.maxRequests) {
+          resetTime = windowStart + config.window;
+          throw createError(
+            ErrorCode.RATE_LIMIT_EXCEEDED,
+            'Rate limit exceeded. Please try again later.',
+            429
+          );
+        }
+        count += 1;
+        resetTime = windowStart + config.window;
+      }
+    } catch {
+      // Legacy format or invalid JSON, treat as new window
+      count = 1;
+      windowStart = now;
+      resetTime = now + config.window;
     }
-    await kv.put(key, (count + 1).toString(), {
-      expirationTtl: config.window,
-    });
   } else {
-    await kv.put(key, '1', {
-      expirationTtl: config.window,
-    });
+    // New window
+    count = 1;
+    windowStart = now;
+    resetTime = now + config.window;
   }
+
+  // Store count and window start time
+  await kv.put(
+    key,
+    JSON.stringify({ count, windowStart }),
+    {
+      expirationTtl: config.window,
+    }
+  );
 
   // Add rate limit headers
   context.rateLimitHeaders = {
     'X-RateLimit-Limit': config.maxRequests.toString(),
-    'X-RateLimit-Remaining': (
-      config.maxRequests - (parseInt(current || '0', 10) + 1)
-    ).toString(),
-    'X-RateLimit-Reset': (
-      Math.floor(Date.now() / 1000) + config.window
-    ).toString(),
+    'X-RateLimit-Remaining': (config.maxRequests - count).toString(),
+    'X-RateLimit-Reset': resetTime.toString(),
   };
 }
 
