@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/hooks/use-auth';
 import { toast } from 'sonner';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 export const runtime = 'edge';
 
@@ -74,7 +75,7 @@ export default function EditNotePage() {
       <ProtectedRoute>
         <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4">
           <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-[calc(100%-80px)] w-full rounded-2xl" />
+          <Skeleton className="h-[calc(100%-80px)] w-full rounded-lg" />
         </div>
       </ProtectedRoute>
     );
@@ -85,9 +86,7 @@ export default function EditNotePage() {
       <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4 max-w-6xl">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-              Edit
-            </span>
+            <Badge variant="secondary">Edit</Badge>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Edit Note</h1>
           </div>
           <NoteSettings
@@ -106,10 +105,9 @@ export default function EditNotePage() {
           onSave={handleSave}
           onCancel={handleCancel}
           isLoading={isLoading}
-          className="border border-border/70 rounded-2xl shadow-card-ambient"
+          className="border rounded-lg"
         />
       </div>
     </ProtectedRoute>
   );
 }
-

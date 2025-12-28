@@ -43,7 +43,7 @@ export function NoteEditorLayout({
 
   if (isMobile) {
     return (
-      <div className={`flex flex-col h-full ${className}`}>
+      <div className={`flex flex-col h-full bg-background ${className}`}>
         <Tabs defaultValue="edit" className="flex-1 flex flex-col">
           <div className="flex items-center justify-between border-b px-4 py-2">
             <TabsList>
@@ -52,12 +52,12 @@ export function NoteEditorLayout({
             </TabsList>
             <div className="flex gap-2">
               {onCancel && (
-                <Button variant="outline" onClick={onCancel} disabled={isLoading}>
+                <Button variant="outline" size="sm" onClick={onCancel} disabled={isLoading}>
                   Cancel
                 </Button>
               )}
               {onSave && (
-                <Button onClick={onSave} disabled={isLoading}>
+                <Button size="sm" onClick={onSave} disabled={isLoading}>
                   Save
                 </Button>
               )}
@@ -80,8 +80,8 @@ export function NoteEditorLayout({
 
   return (
     <div
-      className={`flex flex-col h-full ${
-        isFullscreen ? 'fixed inset-0 z-50 bg-background' : className
+      className={`flex flex-col h-full bg-background ${
+        isFullscreen ? 'fixed inset-0 z-50' : className
       }`}
     >
       <div className="flex items-center justify-between border-b px-4 py-2">
@@ -99,12 +99,12 @@ export function NoteEditorLayout({
         </Button>
         <div className="flex gap-2">
           {onCancel && (
-            <Button variant="outline" onClick={onCancel} disabled={isLoading}>
+            <Button variant="outline" size="sm" onClick={onCancel} disabled={isLoading}>
               Cancel
             </Button>
           )}
           {onSave && (
-            <Button onClick={onSave} disabled={isLoading}>
+            <Button size="sm" onClick={onSave} disabled={isLoading}>
               Save
             </Button>
           )}
@@ -156,4 +156,3 @@ export function NoteEditorLayout({
     </div>
   );
 }
-

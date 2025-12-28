@@ -41,19 +41,19 @@ export default function EditProfilePage() {
   if (isLoading) {
     return (
       <ProtectedRoute>
-        <main className="container mx-auto px-4 py-12 max-w-2xl">
-          <Skeleton className="h-64 w-full rounded-2xl" />
-        </main>
+        <div className="container mx-auto px-4 py-12 max-w-2xl">
+          <Skeleton className="h-64 w-full rounded-lg" />
+        </div>
       </ProtectedRoute>
     );
   }
 
   return (
     <ProtectedRoute>
-      <main className="container mx-auto px-4 py-12 max-w-2xl">
-        <Card className="border border-border/70 bg-white/75 dark:bg-background/70 backdrop-blur-xl shadow-card-ambient">
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-2xl font-bold tracking-tight">Edit Profile</CardTitle>
+      <div className="container mx-auto px-4 py-12 max-w-2xl">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">Edit Profile</CardTitle>
             <CardDescription>Update your profile information</CardDescription>
           </CardHeader>
           <CardContent>
@@ -73,8 +73,7 @@ export default function EditProfilePage() {
             />
           </CardContent>
         </Card>
-      </main>
+      </div>
     </ProtectedRoute>
   );
 }
-

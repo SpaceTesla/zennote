@@ -105,6 +105,11 @@ export const List = withIcon(LeftToRightListBulletIcon)
 export const Quote = withIcon(QuoteUpCircleIcon)
 export const Image = withIcon(Image01Icon)
 export const MoreVertical = withIcon(MoreVerticalIcon)
+export const CircleCheckIcon = withIcon(Tick01Icon)
+export const InfoIcon = withIcon(Alert01Icon)
+export const Loader2Icon = withIcon(CircleSvgIcon)
+export const OctagonXIcon = withIcon(Cancel01Icon)
+export const TriangleAlertIcon = withIcon(Alert01Icon)
 
 export type { IconProps }
 

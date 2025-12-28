@@ -75,7 +75,7 @@ export function NoteList({
               onClick={() => onPageChange?.(pagination.page - 1)}
               disabled={pagination.page === 1}
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4 mr-1" />
               Previous
             </Button>
             <Button
@@ -85,7 +85,7 @@ export function NoteList({
               disabled={!pagination.hasMore}
             >
               Next
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>
@@ -93,4 +93,3 @@ export function NoteList({
     </>
   );
 }
-

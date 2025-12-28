@@ -43,12 +43,7 @@ export function ShareDialog({ noteId, onShare }: ShareDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Share2 className="h-4 w-4 mr-2" />
-          Share
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button variant="outline" size="sm"><Share2 className="h-4 w-4 mr-2" />Share</Button>} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Share Note</DialogTitle>

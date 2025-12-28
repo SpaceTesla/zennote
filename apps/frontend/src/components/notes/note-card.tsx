@@ -27,7 +27,7 @@ export function NoteCard({ note, onEdit, onDelete, onShare }: NoteCardProps) {
     : note.content;
 
   return (
-    <Card className="group hover:shadow-lg transition-shadow">
+    <Card>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -45,23 +45,18 @@ export function NoteCard({ note, onEdit, onDelete, onShare }: NoteCardProps) {
           </div>
           <div className="flex items-center gap-2">
             {note.is_public ? (
-              <Badge variant="outline" className="gap-1">
-                <Globe className="h-3 w-3" />
+              <Badge variant="outline">
+                <Globe className="h-3 w-3 mr-1" />
                 Public
               </Badge>
             ) : (
-              <Badge variant="outline" className="gap-1">
-                <Lock className="h-3 w-3" />
+              <Badge variant="outline">
+                <Lock className="h-3 w-3 mr-1" />
                 Private
               </Badge>
             )}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreVertical className="h-4 w-4" />
-                  <span className="sr-only">More options</span>
-                </Button>
-              </DropdownMenuTrigger>
+              <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /><span className="sr-only">More options</span></Button>} />
               <DropdownMenuContent align="end">
                 {onEdit && (
                   <DropdownMenuItem onClick={() => onEdit(note.id)}>
@@ -93,11 +88,8 @@ export function NoteCard({ note, onEdit, onDelete, onShare }: NoteCardProps) {
         <p className="text-sm text-muted-foreground line-clamp-3">{excerpt}</p>
       </CardContent>
       <CardFooter>
-        <Button variant="ghost" size="sm" asChild className="w-full">
-          <Link href={`/notes/${note.id}`}>View Note</Link>
-        </Button>
+        <Button variant="ghost" size="sm" render={<Link href={`/notes/${note.id}`}>View Note</Link>} className="w-full" />
       </CardFooter>
     </Card>
   );
 }
-

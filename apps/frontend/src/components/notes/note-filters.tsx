@@ -1,6 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
@@ -51,4 +50,3 @@ export function NoteFilters({ filters, onFiltersChange }: NoteFiltersProps) {
     </div>
   );
 }
-

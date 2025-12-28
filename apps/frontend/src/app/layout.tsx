@@ -8,13 +8,13 @@ import { Header } from '@/components/layout/header';
 import { AuthProvider } from '@/components/auth/auth-provider';
 
 const inter = Inter({
-  variable: '--font-geist-sans',
+  variable: '--font-sans',
   subsets: ['latin'],
   display: 'swap',
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: '--font-geist-mono',
+  variable: '--font-mono',
   subsets: ['latin'],
   display: 'swap',
 });
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} antialiased bg-background text-foreground`}
+        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased min-h-screen flex flex-col`}
       >
         <ThemeProvider
           attribute="class"
@@ -43,7 +43,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             <Header />
-            {children}
+            <main className="flex-1">{children}</main>
             <Footer />
             <Toaster />
           </AuthProvider>

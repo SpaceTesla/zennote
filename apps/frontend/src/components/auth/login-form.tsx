@@ -1,13 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -113,7 +111,7 @@ export function LoginForm() {
                   disabled={isLoading}
                 />
               </FormControl>
-              <FormLabel className="cursor-pointer">Remember me</FormLabel>
+              <FormLabel className="cursor-pointer font-normal">Remember me</FormLabel>
             </FormItem>
           )}
         />
@@ -132,4 +130,3 @@ export function LoginForm() {
     </Form>
   );
 }
-

@@ -30,7 +30,7 @@ export function ProfileHeader({ profile, userId }: ProfileHeaderProps) {
   };
 
   return (
-    <header className="border-b pb-6 mb-6">
+    <header className="pb-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
         <Avatar className="h-24 w-24">
           <AvatarImage src={profile.avatar_url || undefined} alt={profile.display_name || 'User'} />
@@ -59,15 +59,9 @@ export function ProfileHeader({ profile, userId }: ProfileHeaderProps) {
           )}
         </div>
         {isOwnProfile && (
-          <Button asChild>
-            <Link href="/profile/edit">
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Profile
-            </Link>
-          </Button>
+          <Button render={<Link href="/profile/edit"><Edit className="h-4 w-4 mr-2" />Edit Profile</Link>} />
         )}
       </div>
     </header>
   );
 }
-

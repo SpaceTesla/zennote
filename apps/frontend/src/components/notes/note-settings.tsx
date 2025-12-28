@@ -56,12 +56,7 @@ export function NoteSettings({
 
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Settings className="h-4 w-4 mr-2" />
-          Settings
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger render={<Button variant="outline" size="sm"><Settings className="h-4 w-4 mr-2" />Settings</Button>} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Note Settings</DialogTitle>
@@ -111,12 +106,7 @@ export function NoteSettings({
 
           {onDelete && (
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Note
-                </Button>
-              </AlertDialogTrigger>
+              <AlertDialogTrigger render={<Button variant="destructive" className="w-full"><Trash2 className="h-4 w-4 mr-2" />Delete Note</Button>} />
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you sure?</AlertDialogTitle>
