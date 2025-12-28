@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { MarkdownToolbar } from './markdown-toolbar';
 
@@ -51,9 +51,8 @@ export function MarkdownEditor({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         disabled={disabled}
-        className="flex-1 resize-none border-0 focus-visible:ring-0 font-mono text-sm"
+        className="flex-1 resize-none border-0 focus-visible:ring-0 font-mono text-sm rounded-none"
       />
     </div>
   );
 }
-

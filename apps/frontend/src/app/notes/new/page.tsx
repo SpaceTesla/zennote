@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { NoteEditorLayout } from '@/components/notes/note-editor-layout';
 import { NoteSettings } from '@/components/notes/note-settings';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useNotes } from '@/lib/hooks/use-notes';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { toast } from 'sonner';
@@ -67,9 +69,7 @@ export default function NewNotePage() {
       <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4 max-w-6xl">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-              New
-            </span>
+            <Badge>New</Badge>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">New Note</h1>
           </div>
           <NoteSettings
@@ -80,25 +80,26 @@ export default function NewNotePage() {
             isPermanent={isAuthenticated}
           />
         </div>
-        <div className="mb-4 rounded-xl border border-border/70 bg-white/70 dark:bg-background/70 backdrop-blur-xl p-4 shadow-card-ambient">
-          <Input
-            type="text"
-            placeholder="Enter note title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="text-lg font-semibold"
-          />
-        </div>
+        <Card>
+          <CardContent className="pt-4">
+            <Input
+              type="text"
+              placeholder="Enter note title..."
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="text-lg font-semibold"
+            />
+          </CardContent>
+        </Card>
         <NoteEditorLayout
           content={content}
           onContentChange={setContent}
           onSave={handleSave}
           onCancel={handleCancel}
           isLoading={isLoading}
-          className="border border-border/70 rounded-2xl shadow-card-ambient"
+          className="border rounded-lg"
         />
       </div>
     </ProtectedRoute>
   );
 }
-

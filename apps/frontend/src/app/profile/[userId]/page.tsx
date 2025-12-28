@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card } from '@/components/ui/card';
 import { profilesApi } from '@/lib/api/profiles';
 import { notesApi } from '@/lib/api/notes';
 import { UserProfile } from '@/types/profile';
@@ -101,28 +102,28 @@ export default function ProfilePage() {
 
   if (isLoadingProfile) {
     return (
-      <main className="container mx-auto px-4 py-12 max-w-5xl space-y-4">
-        <Skeleton className="h-32 w-full mb-2 rounded-2xl" />
-        <Skeleton className="h-64 w-full rounded-2xl" />
-      </main>
+      <div className="container mx-auto px-4 py-12 max-w-5xl space-y-4">
+        <Skeleton className="h-32 w-full mb-2 rounded-lg" />
+        <Skeleton className="h-64 w-full rounded-lg" />
+      </div>
     );
   }
 
   if (!profile) {
     return (
-      <main className="container mx-auto px-4 py-12 max-w-5xl">
+      <div className="container mx-auto px-4 py-12 max-w-5xl">
         <p className="text-muted-foreground">Profile not found</p>
-      </main>
+      </div>
     );
   }
 
   const isOwnProfile = currentUser?.id === userId;
 
   return (
-    <main className="container mx-auto px-4 py-12 max-w-5xl space-y-8">
-      <div className="rounded-2xl border border-border/70 bg-white/70 dark:bg-background/70 backdrop-blur-xl shadow-card-ambient p-1">
+    <div className="container mx-auto px-4 py-12 max-w-5xl space-y-8">
+      <Card className="p-6">
         <ProfileHeader profile={profile} userId={userId} />
-      </div>
+      </Card>
 
       <section className="space-y-4">
         <div className="flex items-center justify-between">
@@ -137,7 +138,6 @@ export default function ProfilePage() {
           onPageChange={handlePageChange}
         />
       </section>
-    </main>
+    </div>
   );
 }
-

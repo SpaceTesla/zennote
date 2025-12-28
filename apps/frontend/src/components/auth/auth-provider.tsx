@@ -13,8 +13,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       hasChecked.current = true;
       checkAuth();
     }
-  }, []); // Empty dependency array - only run once
+  }, []);
 
   return <>{children}</>;
 }
-

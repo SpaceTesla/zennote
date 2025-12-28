@@ -21,16 +21,7 @@ export default function Header() {
           </div>
         </Link>
         <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="icon" className="hover:bg-amber-500/10" asChild>
-            <Link
-              href="https://github.com/SpaceTesla/zennote"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Github className="h-5 w-5" />
-              <span className="sr-only">GitHub</span>
-            </Link>
-          </Button>
+          <Button variant="ghost" size="icon" className="hover:bg-amber-500/10" render={<Link href="https://github.com/SpaceTesla/zennote" target="_blank" rel="noopener noreferrer"><Github className="h-5 w-5" /><span className="sr-only">GitHub</span></Link>} />
           <ThemeToggle />
         </div>
       </div>

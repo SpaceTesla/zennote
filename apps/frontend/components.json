@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "base",
+  "style": "new-york",
   "rsc": true,
   "tsx": true,
   "tailwind": {
@@ -15,7 +15,7 @@
     "utils": "@/lib/utils",
     "ui": "@/components/ui",
     "lib": "@/lib",
-    "hooks": "@/hooks"
+    "hooks": "@/lib/hooks"
   },
   "iconLibrary": "hugeicons"
 }

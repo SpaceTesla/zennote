@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -14,9 +14,11 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/lib/hooks/use-auth';
 import { User, LogOut, Settings, FileText } from '@/components/ui/hugeicons';
+import { cn } from '@/lib/utils';
 
 export function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { isAuthenticated, user, profile, logout } = useAuth();
 
   const handleLogout = () => {
@@ -39,66 +41,90 @@ export function Header() {
     return 'U';
   };
 
-  return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-white/60 dark:bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-card-ambient">
-      <nav className="container mx-auto px-4 py-4 flex items-center justify-between max-w-7xl">
-        <Link href="/" className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary/90 via-primary to-amber-400 shadow-glow flex items-center justify-center">
-            <span className="text-primary-foreground font-semibold text-sm">ZN</span>
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="font-semibold text-lg tracking-tight">Zennote</span>
-            <span className="text-xs text-muted-foreground">Markdown, polished.</span>
-          </div>
-        </Link>
+  const navItems = [
+    { href: '/', label: 'Home' },
+    { href: '/notes', label: 'Notes', requiresAuth: true },
+  ];
 
-        <div className="flex items-center gap-4">
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
+      <nav className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
+        <div className="flex items-center gap-10">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
+              <span className="text-primary-foreground text-xs font-semibold">ZN</span>
+            </div>
+            <span className="font-semibold text-lg">Zennote</span>
+          </Link>
+          
+          {isAuthenticated && (
+            <nav className="hidden items-center gap-6 md:flex">
+              {navItems.map((item) => {
+                if (item.requiresAuth && !isAuthenticated) return null;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary",
+                      pathname === item.href
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
           {isAuthenticated ? (
             <>
-              <Button variant="ghost" asChild className="px-3 hover:bg-amber-500/10">
-                <Link href="/notes">
-                  <FileText className="h-4 w-4 mr-2 text-primary" />
-                  Notes
-                </Link>
-              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="hidden md:flex"
+                render={<Link href="/notes"><FileText className="mr-2 h-4 w-4" />Notes</Link>} 
+              />
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full border border-border/70 bg-white/60 dark:bg-input/30 shadow-card-ambient">
-                    <Avatar className="h-9 w-9">
-                      <AvatarFallback>{getInitials()}</AvatarFallback>
+                <DropdownMenuTrigger render={
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">{getInitials()}</AvatarFallback>
                     </Avatar>
+                    <span className="sr-only">Toggle user menu</span>
                   </Button>
-                </DropdownMenuTrigger>
+                } />
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium leading-none">
                       {profile?.display_name || user?.email}
                     </p>
-                    <p className="text-xs text-muted-foreground">{user?.email}</p>
+                    {user?.email && profile?.display_name && (
+                      <p className="text-xs text-muted-foreground mt-1">{user.email}</p>
+                    )}
                   </div>
                   <DropdownMenuSeparator />
-                  {user?.id ? (
-                    <DropdownMenuItem asChild>
-                      <Link href={`/profile/${user.id}`}>
-                        <User className="h-4 w-4 mr-2" />
+                  {user?.id && (
+                    <DropdownMenuItem render={
+                      <Link href={`/profile/${user.id}`} className="flex items-center">
+                        <User className="mr-2 h-4 w-4" />
                         Profile
                       </Link>
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem disabled>
-                      <User className="h-4 w-4 mr-2" />
-                      Profile
-                    </DropdownMenuItem>
+                    } />
                   )}
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile/edit">
-                      <Settings className="h-4 w-4 mr-2 text-primary" />
+                  <DropdownMenuItem render={
+                    <Link href="/profile/edit" className="flex items-center">
+                      <Settings className="mr-2 h-4 w-4" />
                       Settings
                     </Link>
-                  </DropdownMenuItem>
+                  } />
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 mr-2 text-destructive" />
+                    <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -106,12 +132,8 @@ export function Header() {
             </>
           ) : (
             <>
-              <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/register">Sign up</Link>
-              </Button>
+              <Button variant="ghost" size="sm" render={<Link href="/login">Login</Link>} />
+              <Button size="sm" render={<Link href="/register">Sign up</Link>} />
             </>
           )}
           <ThemeToggle />
@@ -120,4 +142,3 @@ export function Header() {
     </header>
   );
 }
-

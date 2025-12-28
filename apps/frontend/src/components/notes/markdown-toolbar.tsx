@@ -79,23 +79,10 @@ export function MarkdownToolbar({ onInsert, disabled }: MarkdownToolbarProps) {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-wrap gap-1 border-b border-border p-2">
+      <div className="flex flex-wrap gap-1 border-b p-2">
         {buttons.map(({ icon: Icon, label, action }) => (
           <Tooltip key={label}>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={action}
-                disabled={disabled}
-                className="h-8 w-8 p-0"
-                aria-label={label}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="sr-only">{label}</span>
-              </Button>
-            </TooltipTrigger>
+            <TooltipTrigger render={<Button type="button" variant="ghost" size="sm" onClick={action} disabled={disabled} className="h-8 w-8 p-0" aria-label={label}><Icon className="h-4 w-4" /><span className="sr-only">{label}</span></Button>} />
             <TooltipContent>
               <p>{label}</p>
             </TooltipContent>
@@ -105,4 +92,3 @@ export function MarkdownToolbar({ onInsert, disabled }: MarkdownToolbarProps) {
     </TooltipProvider>
   );
 }
-
