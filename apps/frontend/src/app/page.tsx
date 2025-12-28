@@ -1,16 +1,31 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Users, Lock, Zap, Code, Share2 } from '@/components/ui/hugeicons';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  FileText,
+  Users,
+  Lock,
+  Zap,
+  Code,
+  Share2,
+} from '@/components/ui/hugeicons';
 import { ScrollReveal } from '@/components/landing/scroll-reveal';
 import { Separator } from '@/components/ui/separator';
+import { AmbientGlow } from '@/components/landing/ambient-glow';
 
 export default function Home() {
   return (
-    <div className="flex flex-col pb-20">
+    <div className="flex flex-col pb-20 relative overflow-hidden">
+      <AmbientGlow />
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24 max-w-5xl">
-        <div className="flex flex-col items-center space-y-12">
+      <section className="container mx-auto px-4 py-16 md:py-24 max-w-5xl relative z-10">
+        <div className="flex flex-col items-center space-y-12 relative">
           <div className="text-center space-y-6 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
               <Zap className="h-4 w-4" />
@@ -21,12 +36,20 @@ export default function Home() {
               <span className="text-primary block">crafted for focus.</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground">
-              Zennote turns messy ideas into polished, shareable knowledge. Real-time preview,
-              zero clutter UI, and a clean design keep you in flow.
+              Zennote turns messy ideas into polished, shareable knowledge.
+              Real-time preview, zero clutter UI, and a clean design keep you in
+              flow.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button render={<Link href="/register">Get Started</Link>} size="lg" />
-              <Button render={<Link href="/notes">Browse Notes</Link>} variant="outline" size="lg" />
+              <Button
+                render={<Link href="/register">Get Started</Link>}
+                size="lg"
+              />
+              <Button
+                render={<Link href="/notes">Browse Notes</Link>}
+                variant="outline"
+                size="lg"
+              />
             </div>
           </div>
 
@@ -38,24 +61,33 @@ export default function Home() {
                   Preview
                 </div>
                 <CardTitle className="text-2xl">Zen note canvas</CardTitle>
-                <CardDescription>Clean typography, smart spacing, zero noise.</CardDescription>
+                <CardDescription>
+                  Clean typography, smart spacing, zero noise.
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
                 <div className="rounded-lg border bg-muted/50 p-4">
-                  <p className="font-semibold text-lg text-foreground mb-2">Meeting prep</p>
+                  <p className="font-semibold text-lg text-foreground mb-2">
+                    Meeting prep
+                  </p>
                   <p className="text-muted-foreground">
-                    - Agenda bullets with `CheckListIcon`<br />
-                    - Decisions highlighted<br />
-                    - Share instantly with collaborators
+                    - Agenda bullets with `CheckListIcon`
+                    <br />
+                    - Decisions highlighted
+                    <br />- Share instantly with collaborators
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Lock className="h-5 w-5 text-primary" />
-                  <span className="text-foreground">Private by default. Public when you choose.</span>
+                  <span className="text-foreground">
+                    Private by default. Public when you choose.
+                  </span>
                 </div>
                 <div className="flex items-center gap-3">
                   <Share2 className="h-5 w-5 text-primary" />
-                  <span className="text-foreground">One-click sharing, tailored permissions.</span>
+                  <span className="text-foreground">
+                    One-click sharing, tailored permissions.
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -85,9 +117,12 @@ export default function Home() {
       {/* Features Section */}
       <section className="container mx-auto px-4 max-w-6xl space-y-8 py-24">
         <div className="text-center space-y-3">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Built for clarity</h2>
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
+            Built for clarity
+          </h2>
           <p className="text-muted-foreground">
-            Everything you need to write, polish, and share knowledge beautifully.
+            Everything you need to write, polish, and share knowledge
+            beautifully.
           </p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -114,7 +149,8 @@ export default function Home() {
               <Lock className="h-8 w-8 text-primary mb-3" />
               <CardTitle>Privacy First</CardTitle>
               <CardDescription>
-                Private by default with optional public links and granular control.
+                Private by default with optional public links and granular
+                control.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -141,7 +177,8 @@ export default function Home() {
               <Users className="h-8 w-8 text-primary mb-3" />
               <CardTitle>Profiles & Sharing</CardTitle>
               <CardDescription>
-                Showcase public notes, manage collaborators, and build your library.
+                Showcase public notes, manage collaborators, and build your
+                library.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -163,8 +200,15 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button render={<Link href="/register">Sign Up Free</Link>} size="lg" />
-              <Button render={<Link href="/login">Sign In</Link>} variant="outline" size="lg" />
+              <Button
+                render={<Link href="/register">Sign Up Free</Link>}
+                size="lg"
+              />
+              <Button
+                render={<Link href="/login">Sign In</Link>}
+                variant="outline"
+                size="lg"
+              />
             </div>
           </CardContent>
         </Card>
