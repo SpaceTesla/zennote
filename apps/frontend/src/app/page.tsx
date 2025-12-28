@@ -2,14 +2,16 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, Users, Lock, Zap, Code, Share2 } from '@/components/ui/hugeicons';
+import { ScrollReveal } from '@/components/landing/scroll-reveal';
+import { Separator } from '@/components/ui/separator';
 
 export default function Home() {
   return (
-    <div className="flex flex-col gap-16 pb-20">
+    <div className="flex flex-col pb-20">
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24 max-w-6xl">
-        <div className="grid md:grid-cols-[1.2fr_1fr] gap-10 items-center">
-          <div className="space-y-6">
+      <section className="container mx-auto px-4 py-16 md:py-24 max-w-5xl">
+        <div className="flex flex-col items-center space-y-12">
+          <div className="text-center space-y-6 max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
               <Zap className="h-4 w-4" />
               Simple & Clean
@@ -18,62 +20,70 @@ export default function Home() {
               Beautiful Markdown notes,
               <span className="text-primary block">crafted for focus.</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
+            <p className="text-lg md:text-xl text-muted-foreground">
               Zennote turns messy ideas into polished, shareable knowledge. Real-time preview,
               zero clutter UI, and a clean design keep you in flow.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button render={<Link href="/register">Get Started</Link>} size="lg" />
               <Button render={<Link href="/notes">Browse Notes</Link>} variant="outline" size="lg" />
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-muted-foreground">
-              <div className="rounded-lg border bg-card px-4 py-3">
-                <p className="text-2xl font-semibold text-foreground">4.8/5</p>
-                <p>Creator satisfaction</p>
-              </div>
-              <div className="rounded-lg border bg-card px-4 py-3">
-                <p className="text-2xl font-semibold text-foreground">Secure</p>
-                <p>Privacy-first sharing</p>
-              </div>
-              <div className="rounded-lg border bg-card px-4 py-3">
-                <p className="text-2xl font-semibold text-foreground">Realtime</p>
-                <p>Live markdown preview</p>
-              </div>
+          </div>
+
+          <ScrollReveal className="w-full max-w-2xl">
+            <Card className="w-full card-frosted">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                  Preview
+                </div>
+                <CardTitle className="text-2xl">Zen note canvas</CardTitle>
+                <CardDescription>Clean typography, smart spacing, zero noise.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                <div className="rounded-lg border bg-muted/50 p-4">
+                  <p className="font-semibold text-lg text-foreground mb-2">Meeting prep</p>
+                  <p className="text-muted-foreground">
+                    - Agenda bullets with `CheckListIcon`<br />
+                    - Decisions highlighted<br />
+                    - Share instantly with collaborators
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Lock className="h-5 w-5 text-primary" />
+                  <span className="text-foreground">Private by default. Public when you choose.</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Share2 className="h-5 w-5 text-primary" />
+                  <span className="text-foreground">One-click sharing, tailored permissions.</span>
+                </div>
+              </CardContent>
+            </Card>
+          </ScrollReveal>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-muted-foreground w-full max-w-2xl">
+            <div className="rounded-lg border bg-card px-4 py-3 text-center">
+              <p className="text-2xl font-semibold text-foreground">4.8/5</p>
+              <p>Creator satisfaction</p>
+            </div>
+            <div className="rounded-lg border bg-card px-4 py-3 text-center">
+              <p className="text-2xl font-semibold text-foreground">Secure</p>
+              <p>Privacy-first sharing</p>
+            </div>
+            <div className="rounded-lg border bg-card px-4 py-3 text-center sm:col-span-1 col-span-2">
+              <p className="text-2xl font-semibold text-foreground">Realtime</p>
+              <p>Live markdown preview</p>
             </div>
           </div>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <div className="h-2 w-2 rounded-full bg-primary" />
-                Preview
-              </div>
-              <CardTitle className="text-2xl">Zen note canvas</CardTitle>
-              <CardDescription>Clean typography, smart spacing, zero noise.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <div className="rounded-lg border bg-muted/50 p-4">
-                <p className="font-semibold text-lg text-foreground mb-2">Meeting prep</p>
-                <p className="text-muted-foreground">
-                  - Agenda bullets with `CheckListIcon`<br />
-                  - Decisions highlighted<br />
-                  - Share instantly with collaborators
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Lock className="h-5 w-5 text-primary" />
-                <span className="text-foreground">Private by default. Public when you choose.</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Share2 className="h-5 w-5 text-primary" />
-                <span className="text-foreground">One-click sharing, tailored permissions.</span>
-              </div>
-            </CardContent>
-          </Card>
         </div>
       </section>
 
+      <div className="container mx-auto max-w-5xl px-4">
+        <Separator className="opacity-10" />
+      </div>
+
       {/* Features Section */}
-      <section className="container mx-auto px-4 max-w-6xl space-y-8">
+      <section className="container mx-auto px-4 max-w-6xl space-y-8 py-24">
         <div className="text-center space-y-3">
           <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Built for clarity</h2>
           <p className="text-muted-foreground">
@@ -138,8 +148,12 @@ export default function Home() {
         </div>
       </section>
 
+      <div className="container mx-auto max-w-5xl px-4">
+        <Separator className="opacity-10" />
+      </div>
+
       {/* CTA Section */}
-      <section className="container mx-auto px-4 max-w-4xl">
+      <section className="container mx-auto px-4 max-w-4xl py-24">
         <Card className="text-center">
           <CardHeader>
             <CardTitle className="text-3xl">Ready to get started?</CardTitle>
