@@ -8,7 +8,8 @@ node_modules/
 .vscode/
 .idea/
 out/         # Static export output (not used with @cloudflare/next-on-pages)
-.vercel/     # Vercel output (used by @cloudflare/next-on-pages)
+# Note: .vercel/ is generated during build and needed for Cloudflare Pages
+# We ignore it in git but it's created during the build process
 *.log
 *.env
 .env.*
