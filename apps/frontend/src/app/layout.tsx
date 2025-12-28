@@ -6,6 +6,7 @@ import './globals.css';
 import Footer from '@/components/footer';
 import { Header } from '@/components/layout/header';
 import { AuthProvider } from '@/components/auth/auth-provider';
+import { QueryProvider } from '@/lib/providers/query-provider';
 
 const inter = Inter({
   variable: '--font-sans',
@@ -41,12 +42,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AuthProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <Toaster />
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <Toaster />
+            </AuthProvider>
+          </QueryProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -16,6 +16,10 @@ import { NoteId, UserId } from '../types/note';
 export class CacheService {
   constructor(private kv?: KVNamespace) {}
 
+  private trackingKey(pattern: string): string {
+    return `_tracking:${pattern}`;
+  }
+
   async get<T>(key: CacheKey): Promise<T | null> {
     if (!this.kv) return null;
     try {
@@ -41,6 +45,39 @@ export class CacheService {
     }
   }
 
+  async getList<T>(key: CacheKey): Promise<T | null> {
+    return this.get<T>(key);
+  }
+
+  async setList<T>(
+    key: CacheKey,
+    value: T,
+    ttl: number,
+    pattern: string
+  ): Promise<void> {
+    await this.set(key, value, ttl);
+    await this.trackKey(pattern, key);
+  }
+
+  private async trackKey(pattern: string, key: CacheKey): Promise<void> {
+    if (!this.kv) return;
+    const trackingKey = this.trackingKey(pattern);
+    try {
+      const existing = (await this.kv.get(trackingKey, 'json')) as
+        | CacheKey[]
+        | null;
+      const keys = existing || [];
+      if (!keys.includes(key)) {
+        keys.push(key);
+        await this.kv.put(trackingKey, JSON.stringify(keys), {
+          expirationTtl: 24 * 60 * 60, // keep tracking for a day
+        });
+      }
+    } catch {
+      // ignore tracking failures
+    }
+  }
+
   async delete(key: CacheKey): Promise<void> {
     if (!this.kv) return;
     try {
@@ -52,9 +89,20 @@ export class CacheService {
 
   async invalidatePattern(pattern: string): Promise<void> {
     if (!this.kv) return;
-    // KV doesn't support pattern deletion, so we'll need to track keys
-    // For now, we'll implement a simple version that deletes known patterns
-    // In production, you might want to use a list of keys stored separately
+    const trackingKey = this.trackingKey(pattern);
+    try {
+      const keys = (await this.kv.get(trackingKey, 'json')) as
+        | CacheKey[]
+        | null;
+      if (keys && keys.length > 0) {
+        await Promise.all([
+          ...keys.map((k) => this.kv!.delete(k)),
+          this.kv.delete(trackingKey),
+        ]);
+      }
+    } catch {
+      // ignore invalidation failures
+    }
   }
 
   async invalidateNote(noteId: NoteId): Promise<void> {

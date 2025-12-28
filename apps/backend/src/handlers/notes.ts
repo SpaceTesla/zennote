@@ -84,7 +84,11 @@ export async function handleGetNotes(
       context,
       result.notes,
       200,
-      paginationMeta(params.page, params.limit, result.total)
+      {
+        pagination: paginationMeta(params.page, params.limit, result.total),
+        isPublic: true,
+        maxAge: 300,
+      }
     );
   } catch (error) {
     return errorFormatter(context, error);
@@ -129,7 +133,7 @@ export async function handleCreateNote(
     const userId = user ? toUserId(user.id) : null;
     const note = await noteService.createNote(input, userId);
 
-    return responseFormatter(context, note, 201);
+    return responseFormatter(context, note, 201, { cacheControl: 'no-store' });
   } catch (error) {
     return errorFormatter(context, error);
   }
@@ -178,7 +182,12 @@ export async function handleDeleteNote(
     const userId = toUserId(user.id);
     await noteService.deleteNote(noteId, userId);
 
-    return responseFormatter(context, { message: 'Note deleted successfully' }, 200);
+    return new Response(null, {
+      status: 204,
+      headers: {
+        ...(context.corsHeaders as Record<string, string>),
+      },
+    });
   } catch (error) {
     return errorFormatter(context, error);
   }

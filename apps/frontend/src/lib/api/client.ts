@@ -4,6 +4,8 @@ import { StandardResponse, ApiError } from '@/types/api';
 
 class ApiClient {
   private client: AxiosInstance;
+  private etagCache = new Map<string, string>();
+  private responseCache = new Map<string, StandardResponse>();
 
   constructor() {
     this.client = axios.create({
@@ -18,7 +20,7 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - attach JWT token
+    // Request interceptor - attach JWT token and conditional ETag
     this.client.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
         const token = this.getToken();
@@ -26,30 +28,46 @@ class ApiClient {
           config.headers.Authorization = `Bearer ${token}`;
         }
 
-        // Log requests in development
+        const key = this.getUrlKey(config);
+        if (key) {
+          const etag = this.etagCache.get(key);
+          if (etag && config.headers) {
+            config.headers['If-None-Match'] = etag;
+          }
+        }
+
         if (process.env.NODE_ENV === 'development') {
           console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
         }
 
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error)
     );
 
-    // Response interceptor - handle errors
+    // Response interceptor - handle errors and cache ETags
     this.client.interceptors.response.use(
       (response) => {
-        // Log responses in development
         if (process.env.NODE_ENV === 'development') {
           console.log(`[API Response] ${response.config.method?.toUpperCase()} ${response.config.url}`, response.data);
+        }
+
+        const etag = response.headers['etag'] as string | undefined;
+        this.cacheResponse(response.config as InternalAxiosRequestConfig, response.data, etag);
+
+        if (response.status === 304) {
+          const key = this.getUrlKey(response.config as InternalAxiosRequestConfig);
+          const cached = key ? this.responseCache.get(key) : undefined;
+          return {
+            ...response,
+            status: 200,
+            data: cached ?? response.data,
+          };
         }
 
         return response;
       },
       (error: AxiosError<StandardResponse>) => {
-        // Handle network errors
         if (!error.response) {
           const networkError = new ApiError(
             'NETWORK_ERROR',
@@ -59,7 +77,6 @@ class ApiClient {
           return Promise.reject(networkError);
         }
 
-        // Handle API errors
         const apiError = error.response.data?.error;
         if (apiError) {
           const apiErrorObj = new ApiError(
@@ -71,7 +88,6 @@ class ApiClient {
           return Promise.reject(apiErrorObj);
         }
 
-        // Fallback error
         const fallbackError = new ApiError(
           'UNKNOWN_ERROR',
           error.message || 'An unexpected error occurred',
@@ -130,6 +146,25 @@ class ApiClient {
   public async delete<T>(url: string, config?: InternalAxiosRequestConfig): Promise<StandardResponse<T>> {
     const response = await this.client.delete<StandardResponse<T>>(url, config);
     return response.data;
+  }
+
+  private getUrlKey(config: InternalAxiosRequestConfig): string | null {
+    if (!config.url) return null;
+    const base = config.baseURL || '';
+    return `${base}${config.url}`;
+  }
+
+  private cacheResponse(
+    config: InternalAxiosRequestConfig,
+    response: StandardResponse,
+    etag?: string
+  ) {
+    const key = this.getUrlKey(config);
+    if (!key) return;
+    this.responseCache.set(key, response);
+    if (etag) {
+      this.etagCache.set(key, etag);
+    }
   }
 }
 

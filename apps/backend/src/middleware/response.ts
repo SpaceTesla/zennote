@@ -2,50 +2,70 @@ import { MiddlewareContext } from './cors';
 import { ApiResponse, successResponse, errorResponse } from '../utils/response';
 import { ApiError } from '../utils/errors';
 
+type PaginationMeta = { page: number; limit: number; total: number };
+
+type ResponseOptions = {
+  pagination?: PaginationMeta;
+  cacheControl?: string;
+  isPublic?: boolean;
+  maxAge?: number;
+};
+
 export function responseFormatter(
   context: MiddlewareContext,
   data: unknown,
   status: number = 200,
-  pagination?: { page: number; limit: number; total: number }
+  options?: ResponseOptions
 ): Response {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/0e98af6b-b33b-4fbf-98ab-a0de336ec4fd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'response.ts:11',message:'responseFormatter entry',data:{hasCorsHeaders:!!context.corsHeaders,corsHeaders:context.corsHeaders},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  // #endregion
   const response: ApiResponse = successResponse(data, {
     requestId: context.requestId as string,
-    ...(pagination && { pagination }),
+    ...(options?.pagination && { pagination: options.pagination }),
   });
+
+  const etag = data && context.cacheService?.generateETag(data);
+  if (etag && context.ifNoneMatch === etag && status === 200) {
+    return new Response(null, {
+      status: 304,
+      headers: {
+        ETag: etag,
+        ...getCorsHeaders(context),
+      },
+    });
+  }
+
+  const cacheControl = determineCacheControl(options);
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...(context.corsHeaders as Record<string, string>),
-    ...(context.rateLimitHeaders as Record<string, string>),
+    ...(etag ? { ETag: etag } : {}),
+    'Cache-Control': cacheControl,
+    Vary: 'Authorization, Accept-Encoding',
     'X-Request-ID': (context.requestId as string) || '',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+    ...getCorsHeaders(context),
+    ...getRateLimitHeaders(context),
   };
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/0e98af6b-b33b-4fbf-98ab-a0de336ec4fd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'response.ts:22',message:'responseFormatter headers before return',data:{headers},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-  // #endregion
 
-  // Add ETag if cache service available
-  if (context.cacheService && data) {
-    const etag = (context.cacheService as any).generateETag(data);
-    headers['ETag'] = etag;
-    headers['Cache-Control'] = 'public, max-age=300';
-  }
-
-  return new Response(JSON.stringify(response), {
+  const responsePayload = JSON.stringify(response);
+  const result = new Response(responsePayload, {
     status,
     headers,
   });
+
+  if (context.edgeCacheService && cacheControl.includes('public')) {
+    context.edgeCacheService.put(context.request, result.clone());
+  }
+
+  return result;
 }
 
 export function errorFormatter(
   context: MiddlewareContext,
   error: unknown
 ): Response {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/0e98af6b-b33b-4fbf-98ab-a0de336ec4fd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'response.ts:39',message:'errorFormatter entry',data:{hasCorsHeaders:!!context.corsHeaders,corsHeaders:context.corsHeaders,errorType:error instanceof Error?error.constructor.name:'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-  // #endregion
   let status = 500;
   let code = 'INTERNAL_ERROR';
   let message = 'An unexpected error occurred';
@@ -66,14 +86,35 @@ export function errorFormatter(
     'Content-Type': 'application/json',
     ...(context.corsHeaders as Record<string, string>),
     'X-Request-ID': (context.requestId as string) || '',
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
   };
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/0e98af6b-b33b-4fbf-98ab-a0de336ec4fd',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'response.ts:60',message:'errorFormatter headers before return',data:{headers},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-  // #endregion
 
   return new Response(JSON.stringify(response), {
     status,
     headers,
   });
 }
+
+function determineCacheControl(options?: ResponseOptions): string {
+  if (options?.cacheControl) return options.cacheControl;
+  if (options?.isPublic) {
+    const maxAge = options?.maxAge || 3600;
+    return `public, max-age=${maxAge}, s-maxage=${maxAge}, stale-while-revalidate=60`;
+  }
+  return 'private, max-age=300, must-revalidate';
+}
+
+function getCorsHeaders(context: MiddlewareContext): Record<string, string> {
+  return (context.corsHeaders as Record<string, string>) || {};
+}
+
+function getRateLimitHeaders(
+  context: MiddlewareContext
+): Record<string, string> {
+  return (context.rateLimitHeaders as Record<string, string>) || {};
+}
+
 

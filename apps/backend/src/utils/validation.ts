@@ -11,9 +11,9 @@ export async function parseBody<T>(
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw createError(
-        ErrorCode.VALIDATION_ERROR,
+        ErrorCode.UNPROCESSABLE_ENTITY,
         'Invalid request body',
-        400,
+        422,
         { errors: error.errors }
       );
     }
@@ -34,9 +34,9 @@ export function validateQueryParams<T>(
   } catch (error) {
     if (error instanceof z.ZodError) {
       throw createError(
-        ErrorCode.VALIDATION_ERROR,
+        ErrorCode.UNPROCESSABLE_ENTITY,
         'Invalid query parameters',
-        400,
+        422,
         { errors: error.errors }
       );
     }

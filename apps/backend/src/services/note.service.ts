@@ -32,6 +32,26 @@ export class NoteService {
     const offset = (page - 1) * limit;
     const now = new Date().toISOString();
 
+    const listCacheKey = this.buildListCacheKey(
+      userId,
+      page,
+      limit,
+      search,
+      sortBy,
+      sortOrder,
+      filterByUserId
+    );
+    const listPattern = this.listPattern(userId);
+
+    const cachedList = await this.cache.getList<{
+      notes: NoteWithAccess[];
+      total: number;
+    }>(listCacheKey);
+
+    if (cachedList) {
+      return cachedList;
+    }
+
     let whereClause = 'WHERE (expires_at IS NULL OR expires_at > ?)';
     const params: unknown[] = [now];
 
@@ -93,7 +113,15 @@ export class NoteService {
       })
     );
 
-    return { notes: notesWithAccess, total };
+    const result = { notes: notesWithAccess, total };
+    await this.cache.setList(
+      listCacheKey,
+      result,
+      CACHE_TTL.USER_DATA,
+      listPattern
+    );
+
+    return result;
   }
 
   async getNoteById(noteId: NoteId, userId: UserId | null): Promise<NoteWithAccess | null> {
@@ -203,6 +231,8 @@ export class NoteService {
     if (userId) {
       await this.cache.invalidateUser(userId);
     }
+    await this.cache.invalidatePattern(this.listPattern(userId));
+    await this.cache.invalidatePattern(this.listPattern(null));
 
     return note;
   }
@@ -269,6 +299,8 @@ export class NoteService {
 
     // Invalidate cache
     await this.cache.invalidateNote(noteId);
+    await this.cache.invalidatePattern(this.listPattern(userId));
+    await this.cache.invalidatePattern(this.listPattern(null));
 
     return note;
   }
@@ -288,6 +320,8 @@ export class NoteService {
 
     // Invalidate cache
     await this.cache.invalidateNote(noteId);
+    await this.cache.invalidatePattern(this.listPattern(userId));
+    await this.cache.invalidatePattern(this.listPattern(null));
   }
 
   async checkNoteAccess(
@@ -329,6 +363,23 @@ export class NoteService {
     }
 
     return null;
+  }
+
+  private buildListCacheKey(
+    userId: UserId | null,
+    page: number,
+    limit: number,
+    search: string | undefined,
+    sortBy: string,
+    sortOrder: 'ASC' | 'DESC',
+    filterByUserId?: UserId
+  ): string {
+    const base = this.cache.userNotesKey(userId || ('anon' as unknown as UserId), page, limit);
+    return `${base}:${search || ''}:${sortBy}:${sortOrder}:${filterByUserId || 'all'}`;
+  }
+
+  private listPattern(userId: UserId | null): string {
+    return `notes:list:${userId || 'anon'}`;
   }
 }
 
