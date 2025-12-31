@@ -21,7 +21,7 @@ export default function ViewNotePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-12 max-w-4xl space-y-4">
+      <div className="container mx-auto p-4 max-w-4xl space-y-4">
         <Skeleton className="h-8 w-64 mb-2" />
         <Skeleton className="h-4 w-32 mb-4" />
         <Skeleton className="h-96 w-full rounded-lg" />
@@ -37,7 +37,7 @@ export default function ViewNotePage() {
       : 'Failed to load note. It may not exist or you may not have permission to view it.';
     
     return (
-      <div className="container mx-auto px-4 py-12 max-w-4xl space-y-4">
+      <div className="container mx-auto p-4 max-w-4xl space-y-4">
         <Card>
           <CardHeader>
             <CardTitle>Error Loading Note</CardTitle>
@@ -51,7 +51,7 @@ export default function ViewNotePage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-4xl space-y-6">
+    <div className="container mx-auto p-4 max-w-4xl space-y-6">
       <Card>
         <CardHeader>
           <div className="flex items-start justify-between gap-4 flex-wrap">
