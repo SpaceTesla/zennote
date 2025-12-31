@@ -154,10 +154,12 @@ export const useAuthStore = create<AuthState>()(
             }
           }
         } catch (error) {
-          // Only clear auth state if we don't have an existing user
-          // This prevents clearing on temporary network errors
-          const currentState = get();
-          if (!currentState.user || !currentState.user.id) {
+          // Check if it's an authentication error (401/403)
+          const isAuthError = error instanceof ApiError && 
+            (error.statusCode === 401 || error.statusCode === 403);
+          
+          // Always clear auth state on authentication errors (expired/invalid token)
+          if (isAuthError) {
             set({
               user: null,
               profile: null,
@@ -172,8 +174,27 @@ export const useAuthStore = create<AuthState>()(
               apiClient.removeToken();
             }
           } else {
-            // Keep existing user, just mark as not loading
-            set({ isLoading: false });
+            // For other errors, only clear if we don't have an existing user
+            // This prevents clearing on temporary network errors
+            const currentState = get();
+            if (!currentState.user || !currentState.user.id) {
+              set({
+                user: null,
+                profile: null,
+                token: null,
+                isAuthenticated: false,
+                isLoading: false,
+                error: null,
+              });
+              // Also clear from apiClient
+              if (typeof window !== 'undefined') {
+                const { apiClient } = await import('../api/client');
+                apiClient.removeToken();
+              }
+            } else {
+              // Keep existing user, just mark as not loading
+              set({ isLoading: false });
+            }
           }
         }
       },

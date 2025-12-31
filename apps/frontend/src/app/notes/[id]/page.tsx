@@ -1,36 +1,51 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { MarkdownPreview } from '@/components/notes/markdown-preview';
-import { useNotes } from '@/lib/hooks/use-notes';
+import { useNote } from '@/lib/queries/notes.queries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Share2, Edit, Lock, Globe, FileText } from '@/components/ui/hugeicons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ApiError } from '@/types/api';
 
 export const runtime = 'edge';
 
 export default function ViewNotePage() {
   const params = useParams();
   const noteId = params.id as string;
-  const { currentNote, fetchNote, isLoading } = useNotes();
+  const { data: currentNote, isLoading, error } = useNote(noteId);
 
-  useEffect(() => {
-    if (noteId) {
-      fetchNote(noteId);
-    }
-  }, [noteId, fetchNote]);
-
-  if (isLoading || !currentNote) {
+  if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-12 max-w-4xl space-y-4">
         <Skeleton className="h-8 w-64 mb-2" />
         <Skeleton className="h-4 w-32 mb-4" />
         <Skeleton className="h-96 w-full rounded-lg" />
+      </div>
+    );
+  }
+
+  if (error || !currentNote) {
+    const errorMessage = error instanceof ApiError 
+      ? error.message 
+      : error instanceof Error
+      ? error.message
+      : 'Failed to load note. It may not exist or you may not have permission to view it.';
+    
+    return (
+      <div className="container mx-auto px-4 py-12 max-w-4xl space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Error Loading Note</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">{errorMessage}</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }

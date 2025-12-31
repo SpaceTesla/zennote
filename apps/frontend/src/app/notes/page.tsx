@@ -16,14 +16,14 @@ import Link from 'next/link';
 
 export default function NotesPage() {
   const router = useRouter();
-  const { notes, pagination, filters, isLoading, fetchNotes, setFilters, deleteNote } = useNotes();
+  const { notes, pagination, filters, isLoading, error, fetchNotes, setFilters, deleteNote } = useNotes();
   const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 500);
 
   useEffect(() => {
     fetchNotes({ ...filters, search: debouncedSearch || undefined });
-  }, [debouncedSearch, filters.sortBy, filters.sortOrder, filters.page]);
+  }, [debouncedSearch, filters.sortBy, filters.sortOrder, filters.page, fetchNotes]);
 
   const handlePageChange = (page: number) => {
     setFilters({ page });
@@ -70,6 +70,15 @@ export default function NotesPage() {
         </CardContent>
       </Card>
 
+      {error && (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-destructive text-sm">
+              {error instanceof Error ? error.message : 'Failed to load notes. Please try again.'}
+            </p>
+          </CardContent>
+        </Card>
+      )}
       <section aria-label="Notes list">
         <NoteList
           notes={notes}

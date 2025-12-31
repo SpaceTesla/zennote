@@ -67,7 +67,7 @@ class ApiClient {
 
         return response;
       },
-      (error: AxiosError<StandardResponse>) => {
+      async (error: AxiosError<StandardResponse>) => {
         if (!error.response) {
           const networkError = new ApiError(
             'NETWORK_ERROR',
@@ -75,6 +75,17 @@ class ApiClient {
             0
           );
           return Promise.reject(networkError);
+        }
+
+        // Handle 401 Unauthorized - token expired or invalid
+        if (error.response.status === 401) {
+          // Clear token and auth state
+          this.removeToken();
+          if (typeof window !== 'undefined') {
+            // Import and clear auth store
+            const { useAuthStore } = await import('../stores/auth-store');
+            useAuthStore.getState().logout();
+          }
         }
 
         const apiError = error.response.data?.error;
