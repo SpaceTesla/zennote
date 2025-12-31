@@ -30,12 +30,13 @@ export default function ViewNotePage() {
   }
 
   if (error || !currentNote) {
-    const errorMessage = error instanceof ApiError 
-      ? error.message 
-      : error instanceof Error
-      ? error.message
-      : 'Failed to load note. It may not exist or you may not have permission to view it.';
-    
+    const errorMessage =
+      error instanceof ApiError
+        ? error.message
+        : error instanceof Error
+        ? error.message
+        : 'Failed to load note. It may not exist or you may not have permission to view it.';
+
     return (
       <div className="container mx-auto p-4 max-w-4xl space-y-4">
         <Card>
@@ -60,13 +61,21 @@ export default function ViewNotePage() {
                 <FileText className="h-3 w-3" />
                 Note
               </div>
-              <h1 className="text-3xl font-bold tracking-tight">{currentNote.title}</h1>
+              <h1 className="text-3xl font-bold tracking-tight">
+                {currentNote.title}
+              </h1>
               <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-                <span>Created {format(new Date(currentNote.created_at), 'MMM d, yyyy')}</span>
+                <span>
+                  Created{' '}
+                  {format(new Date(currentNote.created_at), 'MMM d, yyyy')}
+                </span>
                 {currentNote.updated_at !== currentNote.created_at && (
                   <>
                     <span>•</span>
-                    <span>Updated {format(new Date(currentNote.updated_at), 'MMM d, yyyy')}</span>
+                    <span>
+                      Updated{' '}
+                      {format(new Date(currentNote.updated_at), 'MMM d, yyyy')}
+                    </span>
                   </>
                 )}
               </div>
@@ -83,7 +92,16 @@ export default function ViewNotePage() {
                   Private
                 </Badge>
               )}
-              <Button variant="outline" size="sm" render={<Link href={`/notes/${noteId}/edit`}><Edit className="h-4 w-4 mr-2" />Edit</Link>} />
+              <Button
+                variant="outline"
+                size="sm"
+                render={
+                  <Link href={`/notes/${noteId}/edit`}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Link>
+                }
+              />
               <Button variant="ghost" size="sm">
                 <Share2 className="h-4 w-4 mr-2" />
                 Share
@@ -95,7 +113,10 @@ export default function ViewNotePage() {
       <Card>
         <CardContent className="pt-6">
           <article className="prose prose-lg dark:prose-invert max-w-none">
-            <MarkdownPreview content={currentNote.content} className="min-h-[400px]" />
+            <MarkdownPreview
+              content={currentNote.content}
+              className="min-h-[400px]"
+            />
           </article>
         </CardContent>
       </Card>

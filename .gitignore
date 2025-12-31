@@ -139,3 +139,6 @@ dist
 .dev.vars
 
 .cursor
+
+# Cloudflare Wrangler
+.wrangler/
