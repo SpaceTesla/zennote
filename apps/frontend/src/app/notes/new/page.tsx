@@ -66,11 +66,13 @@ export default function NewNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4 max-w-6xl">
-        <div className="flex items-center justify-between mb-2">
+      <div className="container mx-auto px-4 py-8 flex flex-col flex-1 max-w-6xl">
+        <div className="flex items-center justify-between mb-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <Badge>New</Badge>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">New Note</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              New Note
+            </h1>
           </div>
           <NoteSettings
             title={title}
@@ -80,7 +82,7 @@ export default function NewNotePage() {
             isPermanent={isAuthenticated}
           />
         </div>
-        <Card>
+        <Card className="flex-shrink-0 mb-4">
           <CardContent className="pt-4">
             <Input
               type="text"
@@ -91,14 +93,16 @@ export default function NewNotePage() {
             />
           </CardContent>
         </Card>
-        <NoteEditorLayout
-          content={content}
-          onContentChange={setContent}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          isLoading={isLoading}
-          className="border rounded-lg"
-        />
+        <div className="flex-1 min-h-0">
+          <NoteEditorLayout
+            content={content}
+            onContentChange={setContent}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            isLoading={isLoading}
+            className="border rounded-lg"
+          />
+        </div>
       </div>
     </ProtectedRoute>
   );

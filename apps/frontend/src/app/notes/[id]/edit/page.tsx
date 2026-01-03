@@ -17,7 +17,8 @@ export default function EditNotePage() {
   const params = useParams();
   const router = useRouter();
   const noteId = params.id as string;
-  const { currentNote, fetchNote, updateNote, deleteNote, isLoading } = useNotes();
+  const { currentNote, fetchNote, updateNote, deleteNote, isLoading } =
+    useNotes();
   const { isAuthenticated } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -73,9 +74,9 @@ export default function EditNotePage() {
   if (isLoading || !currentNote) {
     return (
       <ProtectedRoute>
-        <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4">
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-[calc(100%-80px)] w-full rounded-lg" />
+        <div className="container mx-auto px-4 py-8 flex flex-col flex-1 max-w-6xl">
+          <Skeleton className="h-8 w-64 mb-4" />
+          <Skeleton className="flex-1 w-full rounded-lg" />
         </div>
       </ProtectedRoute>
     );
@@ -83,11 +84,13 @@ export default function EditNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto px-4 py-8 h-[calc(100vh-140px)] space-y-4 max-w-6xl">
-        <div className="flex items-center justify-between mb-2">
+      <div className="container mx-auto px-4 py-8 flex flex-col flex-1 max-w-6xl">
+        <div className="flex items-center justify-between mb-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <Badge variant="secondary">Edit</Badge>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Edit Note</h1>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+              Edit Note
+            </h1>
           </div>
           <NoteSettings
             title={title}
@@ -99,14 +102,16 @@ export default function EditNotePage() {
             expiresAt={currentNote.expires_at}
           />
         </div>
-        <NoteEditorLayout
-          content={content}
-          onContentChange={setContent}
-          onSave={handleSave}
-          onCancel={handleCancel}
-          isLoading={isLoading}
-          className="border rounded-lg"
-        />
+        <div className="flex-1 min-h-0">
+          <NoteEditorLayout
+            content={content}
+            onContentChange={setContent}
+            onSave={handleSave}
+            onCancel={handleCancel}
+            isLoading={isLoading}
+            className="border rounded-lg"
+          />
+        </div>
       </div>
     </ProtectedRoute>
   );

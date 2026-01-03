@@ -44,8 +44,8 @@ export function NoteEditorLayout({
   if (isMobile) {
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
-        <Tabs defaultValue="edit" className="flex-1 flex flex-col">
-          <div className="flex items-center justify-between border-b px-4 py-2">
+        <Tabs defaultValue="edit" className="flex-1 flex flex-col min-h-0">
+          <div className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
             <TabsList>
               <TabsTrigger value="edit">Edit</TabsTrigger>
               <TabsTrigger value="preview">Preview</TabsTrigger>
@@ -63,14 +63,14 @@ export function NoteEditorLayout({
               )}
             </div>
           </div>
-          <TabsContent value="edit" className="flex-1 m-0">
+          <TabsContent value="edit" className="flex-1 m-0 min-h-0">
             <MarkdownEditor
               value={content}
               onChange={onContentChange}
               className="h-full"
             />
           </TabsContent>
-          <TabsContent value="preview" className="flex-1 m-0">
+          <TabsContent value="preview" className="flex-1 m-0 min-h-0">
             <MarkdownPreview content={content} className="h-full" />
           </TabsContent>
         </Tabs>
@@ -84,7 +84,7 @@ export function NoteEditorLayout({
         isFullscreen ? 'fixed inset-0 z-50' : className
       }`}
     >
-      <div className="flex items-center justify-between border-b px-4 py-2">
+      <div className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -110,9 +110,9 @@ export function NoteEditorLayout({
           )}
         </div>
       </div>
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         <div
-          className="flex-1 border-r"
+          className="flex-1 border-r min-h-0"
           style={{ width: `${splitRatio}%` }}
         >
           <MarkdownEditor
@@ -122,7 +122,7 @@ export function NoteEditorLayout({
           />
         </div>
         <div
-          className="relative cursor-col-resize group"
+          className="relative cursor-col-resize group flex-shrink-0"
           onMouseDown={(e) => {
             const startX = e.clientX;
             const startRatio = splitRatio;
@@ -147,7 +147,7 @@ export function NoteEditorLayout({
           <Separator orientation="vertical" className="h-full w-1 group-hover:bg-primary transition-colors" />
         </div>
         <div
-          className="flex-1"
+          className="flex-1 min-h-0"
           style={{ width: `${100 - splitRatio}%` }}
         >
           <MarkdownPreview content={content} className="h-full" />
