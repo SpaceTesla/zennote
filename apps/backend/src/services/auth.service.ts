@@ -1,22 +1,20 @@
 import { DbService } from './db.service';
-import { User, RegisterInput, LoginInput, AuthToken, UserId } from '../types/auth';
+import { User, RegisterInput, LoginInput, AuthToken } from '../types/auth';
+import { UserId } from '../types/note';
 import { generateUUID } from '../utils/uuid';
 import { toUserId } from '../utils/types';
 import { createError, ErrorCode } from '../utils/errors';
 import { Env } from '../types/env';
 
 export class AuthService {
-  constructor(
-    private db: DbService,
-    private jwtSecret: string
-  ) {}
+  constructor(private db: DbService, private jwtSecret: string) {}
 
   async hashPassword(password: string): Promise<string> {
     // Use PBKDF2 for password hashing (more secure than SHA-256)
     const encoder = new TextEncoder();
     const passwordData = encoder.encode(password);
     const salt = crypto.getRandomValues(new Uint8Array(16));
-    
+
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
       passwordData,
@@ -37,9 +35,13 @@ export class AuthService {
     );
 
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-    const saltHex = Array.from(salt).map((b) => b.toString(16).padStart(2, '0')).join('');
-    
+    const hashHex = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    const saltHex = Array.from(salt)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+
     // Store as salt:hash
     return `${saltHex}:${hashHex}`;
   }
@@ -77,17 +79,24 @@ export class AuthService {
     );
 
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const computedHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    const computedHash = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
 
     return computedHash === hashHex;
   }
 
-  private async verifyPasswordLegacy(password: string, hash: string): Promise<boolean> {
+  private async verifyPasswordLegacy(
+    password: string,
+    hash: string
+  ): Promise<boolean> {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const passwordHash = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    const passwordHash = hashArray
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
     return passwordHash === hash;
   }
 
@@ -113,9 +122,7 @@ export class AuthService {
       .replace(/\//g, '_')
       .replace(/=/g, '');
 
-    const signature = await this.signToken(
-      `${base64Header}.${base64Payload}`
-    );
+    const signature = await this.signToken(`${base64Header}.${base64Payload}`);
     const base64Signature = btoa(signature)
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
@@ -158,8 +165,10 @@ export class AuthService {
 
       if (signature !== base64Signature) return null;
 
-      const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))) as AuthToken;
-      
+      const decoded = JSON.parse(
+        atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+      ) as AuthToken;
+
       if (decoded.exp < Math.floor(Date.now() / 1000)) {
         return null; // Token expired
       }
@@ -224,7 +233,10 @@ export class AuthService {
       );
     }
 
-    const isValid = await this.verifyPassword(input.password, user.password_hash);
+    const isValid = await this.verifyPassword(
+      input.password,
+      user.password_hash
+    );
     if (!isValid) {
       throw createError(
         ErrorCode.UNAUTHORIZED,
@@ -237,10 +249,8 @@ export class AuthService {
   }
 
   async getUserById(userId: UserId): Promise<User | null> {
-    return await this.db.queryOne<User>(
-      'SELECT * FROM users WHERE id = ?',
-      [userId]
-    );
+    return await this.db.queryOne<User>('SELECT * FROM users WHERE id = ?', [
+      userId,
+    ]);
   }
 }
-

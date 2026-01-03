@@ -11,6 +11,7 @@ import {
   CheckListIcon,
   CircleIcon as CircleSvgIcon,
   CodeIcon,
+  Copy02Icon,
   BookOpen01Icon,
   Delete02Icon,
   Edit02Icon,
@@ -95,6 +96,7 @@ export const Sparkles = withIcon(SparklesIcon)
 export const Sun = withIcon(Sun01Icon)
 export const Moon = withIcon(Moon01Icon)
 export const CheckIcon = withIcon(Tick01Icon)
+export const Copy = withIcon(Copy02Icon)
 export const Circle = withIcon(CircleSvgIcon)
 export const CircleIcon = withIcon(CircleSvgIcon)
 export const Bold = withIcon(TextBoldIcon)

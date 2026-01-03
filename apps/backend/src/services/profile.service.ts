@@ -6,18 +6,14 @@ import {
   UpdateProfileInput,
   UpdateSocialLinksInput,
   ProfileWithSocials,
-  UserId,
 } from '../types/profile';
+import { UserId } from '../types/note';
 import { generateUUID } from '../utils/uuid';
-import { toUserId } from '../utils/types';
 import { createError, ErrorCode } from '../utils/errors';
 import { CACHE_TTL } from '../utils/cache';
 
 export class ProfileService {
-  constructor(
-    private db: DbService,
-    private cache: CacheService
-  ) {}
+  constructor(private db: DbService, private cache: CacheService) {}
 
   async getProfile(userId: UserId): Promise<ProfileWithSocials | null> {
     // Check cache
@@ -153,4 +149,3 @@ export class ProfileService {
     return socials.results || [];
   }
 }
-

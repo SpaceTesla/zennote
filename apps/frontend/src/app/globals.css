@@ -217,25 +217,36 @@
     padding-left: 1.25rem;
   }
 
-  .markdown-prose code {
+  /* Styles for inline code only (not inside pre blocks) */
+  .markdown-prose code:not(pre code) {
     background: var(--muted);
     padding: 0.25rem 0.5rem;
     border-radius: 0.375rem;
     font-family: var(--font-mono);
     font-size: 0.95rem;
     color: var(--foreground);
+    display: inline;
+  }
+
+  /* Code inside pre blocks (code blocks) - no background/padding */
+  .markdown-prose pre code {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    display: block;
   }
 
   .markdown-prose pre {
     background: var(--code-block-bg);
     color: var(--foreground);
-    padding: 1rem;
+    padding: 0;
     border-radius: 0.85rem;
-    border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+    border: none;
     overflow-x: auto;
     font-size: 0.95rem;
     line-height: 1.7;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    box-shadow: none;
+    margin-bottom: 1.5rem;
   }
 
   .markdown-prose blockquote {
@@ -278,12 +289,38 @@
 
   .markdown-prose .shiki {
     border-radius: 0.85rem;
-    border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
     background: var(--code-block-bg);
-    padding: 1rem;
+    padding: 1rem 1.25rem;
     font-size: 0.95rem;
     line-height: 1.7;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+    box-shadow: none;
+    border: none;
+  }
+
+  /* Override Shiki's theme background for light mode with subtle accent */
+  :root:not(.dark) .markdown-prose .shiki {
+    background: color-mix(
+      in oklab,
+      var(--primary) 4%,
+      var(--code-block-bg)
+    ) !important;
+  }
+
+  /* Override Shiki's theme background for dark mode with subtle accent */
+  .dark .markdown-prose .shiki {
+    background: color-mix(
+      in oklab,
+      var(--primary) 4%,
+      var(--code-block-bg)
+    ) !important;
+  }
+
+  .markdown-prose .shiki pre {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
   }
 
   .markdown-prose .shiki code {
@@ -294,6 +331,76 @@
 
   .markdown-prose .shiki .line {
     min-height: 1rem;
+  }
+
+  /* Code block wrapper with header */
+  .code-block-wrapper {
+    position: relative;
+    border-radius: 0.85rem;
+    overflow: hidden;
+    background: transparent;
+    margin-bottom: 1.5rem;
+  }
+
+  .code-block-wrapper:last-child {
+    margin-bottom: 0;
+  }
+
+  .code-block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.625rem 1rem;
+    background: color-mix(in oklab, var(--primary) 4%, var(--code-block-bg));
+    border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .code-language {
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--font-mono);
+  }
+
+  .code-copy-button {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: transparent;
+    border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+    border-radius: 0.25rem;
+    color: var(--muted-foreground);
+    font-size: 0.6875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-sans);
+  }
+
+  .code-copy-button:hover {
+    background: color-mix(in oklab, var(--accent) 50%, transparent);
+    border-color: var(--border);
+    color: var(--foreground);
+  }
+
+  .code-copy-button:active {
+    transform: scale(0.98);
+  }
+
+  .code-block-wrapper .shiki {
+    margin: 0;
+    border-radius: 0;
+    background: color-mix(
+      in oklab,
+      var(--primary) 4%,
+      var(--code-block-bg)
+    ) !important;
+  }
+
+  .code-block-wrapper .shiki pre {
+    margin: 0;
   }
 }
 

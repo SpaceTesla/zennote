@@ -36,11 +36,15 @@ export function loadHighlighter() {
 
   highlighterPromise = import('shiki').then(async (shiki) => {
     return shiki.getHighlighter({
-      themes: ['github-light-default', 'github-dark-default'],
+      themes: [
+        'github-light-default',
+        'github-dark-default',
+        'rose-pine-dawn',
+        'rose-pine',
+      ],
       langs: languages,
     });
   });
 
   return highlighterPromise;
 }
-
