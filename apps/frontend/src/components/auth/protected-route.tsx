@@ -38,6 +38,6 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return null;
   }
 
-  return <>{children}</>;
+  return <div className="flex flex-col flex-1 h-full">{children}</div>;
 }
 

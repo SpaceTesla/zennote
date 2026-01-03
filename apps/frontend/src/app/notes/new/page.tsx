@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { NoteEditorLayout } from '@/components/notes/note-editor-layout';
 import { NoteSettings } from '@/components/notes/note-settings';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useNotes } from '@/lib/hooks/use-notes';
 import { useAuth } from '@/lib/hooks/use-auth';
@@ -66,7 +64,7 @@ export default function NewNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto px-4 py-8 flex flex-col flex-1 max-w-6xl">
+      <div className="container mx-auto p-4 flex flex-col flex-1 gap-2 max-w-7xl min-h-0">
         <div className="flex items-center justify-between mb-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <Badge>New</Badge>
@@ -82,18 +80,7 @@ export default function NewNotePage() {
             isPermanent={isAuthenticated}
           />
         </div>
-        <Card className="flex-shrink-0 mb-4">
-          <CardContent className="pt-4">
-            <Input
-              type="text"
-              placeholder="Enter note title..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="text-lg font-semibold"
-            />
-          </CardContent>
-        </Card>
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 flex flex-col">
           <NoteEditorLayout
             content={content}
             onContentChange={setContent}
@@ -101,6 +88,9 @@ export default function NewNotePage() {
             onCancel={handleCancel}
             isLoading={isLoading}
             className="border rounded-lg"
+            title={title}
+            onTitleChange={setTitle}
+            titlePlaceholder="Enter note title..."
           />
         </div>
       </div>

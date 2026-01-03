@@ -74,7 +74,7 @@ export default function EditNotePage() {
   if (isLoading || !currentNote) {
     return (
       <ProtectedRoute>
-        <div className="container mx-auto px-4 py-8 flex flex-col flex-1 max-w-6xl">
+        <div className="container mx-auto p-4 flex flex-col flex-1 gap-2 max-w-7xl min-h-0">
           <Skeleton className="h-8 w-64 mb-4" />
           <Skeleton className="flex-1 w-full rounded-lg" />
         </div>
@@ -84,7 +84,7 @@ export default function EditNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto px-4 py-8 flex flex-col flex-1 max-w-6xl">
+      <div className="container mx-auto p-4 flex flex-col flex-1 gap-2 max-w-7xl min-h-0">
         <div className="flex items-center justify-between mb-2 flex-shrink-0">
           <div className="flex items-center gap-2">
             <Badge variant="secondary">Edit</Badge>
@@ -102,7 +102,7 @@ export default function EditNotePage() {
             expiresAt={currentNote.expires_at}
           />
         </div>
-        <div className="flex-1 min-h-0">
+        <div className="flex-1 min-h-0 flex flex-col">
           <NoteEditorLayout
             content={content}
             onContentChange={setContent}

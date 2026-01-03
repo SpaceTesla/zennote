@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { MarkdownEditor } from './markdown-editor';
 import { MarkdownPreview } from './markdown-preview';
 import { useMediaQuery } from '@/lib/hooks/use-media-query';
@@ -16,6 +17,9 @@ interface NoteEditorLayoutProps {
   onCancel?: () => void;
   isLoading?: boolean;
   className?: string;
+  title?: string;
+  onTitleChange?: (title: string) => void;
+  titlePlaceholder?: string;
 }
 
 export function NoteEditorLayout({
@@ -25,6 +29,9 @@ export function NoteEditorLayout({
   onCancel,
   isLoading,
   className,
+  title,
+  onTitleChange,
+  titlePlaceholder = 'Enter note title...',
 }: NoteEditorLayoutProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -45,6 +52,17 @@ export function NoteEditorLayout({
     return (
       <div className={`flex flex-col h-full bg-background ${className}`}>
         <Tabs defaultValue="edit" className="flex-1 flex flex-col min-h-0">
+          {title !== undefined && onTitleChange && (
+            <div className="border-b px-4 py-2 flex-shrink-0">
+              <Input
+                type="text"
+                placeholder={titlePlaceholder}
+                value={title}
+                onChange={(e) => onTitleChange(e.target.value)}
+                className="w-full text-sm font-semibold"
+              />
+            </div>
+          )}
           <div className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
             <TabsList>
               <TabsTrigger value="edit">Edit</TabsTrigger>
@@ -52,7 +70,12 @@ export function NoteEditorLayout({
             </TabsList>
             <div className="flex gap-2">
               {onCancel && (
-                <Button variant="outline" size="sm" onClick={onCancel} disabled={isLoading}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onCancel}
+                  disabled={isLoading}
+                >
                   Cancel
                 </Button>
               )}
@@ -80,16 +103,19 @@ export function NoteEditorLayout({
 
   return (
     <div
-      className={`flex flex-col h-full bg-background ${
-        isFullscreen ? 'fixed inset-0 z-50' : className
+      className={`flex flex-col bg-background ${
+        isFullscreen
+          ? 'fixed inset-0 z-50 h-screen'
+          : `flex-1 min-h-0 ${className}`
       }`}
     >
-      <div className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
+      <div className="flex items-center gap-3 border-b px-4 py-2 flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
           onClick={() => setIsFullscreen(!isFullscreen)}
           aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+          className="flex-shrink-0"
         >
           {isFullscreen ? (
             <Minimize2 className="h-4 w-4" />
@@ -97,9 +123,23 @@ export function NoteEditorLayout({
             <Maximize2 className="h-4 w-4" />
           )}
         </Button>
-        <div className="flex gap-2">
+        {title !== undefined && onTitleChange && (
+          <Input
+            type="text"
+            placeholder={titlePlaceholder}
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            className="flex-1 text-sm font-semibold border-0 shadow-none focus-visible:ring-0 bg-transparent"
+          />
+        )}
+        <div className="flex gap-2 ml-auto">
           {onCancel && (
-            <Button variant="outline" size="sm" onClick={onCancel} disabled={isLoading}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onCancel}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
           )}
@@ -131,7 +171,10 @@ export function NoteEditorLayout({
               const deltaX = moveEvent.clientX - startX;
               const containerWidth = window.innerWidth;
               const deltaPercent = (deltaX / containerWidth) * 100;
-              const newRatio = Math.max(10, Math.min(90, startRatio + deltaPercent));
+              const newRatio = Math.max(
+                10,
+                Math.min(90, startRatio + deltaPercent)
+              );
               setSplitRatio(newRatio);
             };
 
@@ -144,7 +187,10 @@ export function NoteEditorLayout({
             document.addEventListener('mouseup', handleMouseUp);
           }}
         >
-          <Separator orientation="vertical" className="h-full w-1 group-hover:bg-primary transition-colors" />
+          <Separator
+            orientation="vertical"
+            className="h-full w-1 group-hover:bg-primary transition-colors"
+          />
         </div>
         <div
           className="flex-1 min-h-0"
