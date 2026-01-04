@@ -1,7 +1,6 @@
 import { apiClient } from './client';
 import { config } from '@/config';
-import { UserProfile, UpdateProfileInput, UserSettings } from '@/types/profile';
-import { UpdateSettingsInput } from '@/types/profile';
+import { UserProfile, UpdateProfileInput, UserSettings, UpdateSettingsInput } from '@/types/profile';
 
 export const profilesApi = {
   async getProfile(userIdOrUsername: string): Promise<UserProfile> {
