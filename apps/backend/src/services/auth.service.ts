@@ -3,13 +3,15 @@ import { User } from '../types/auth';
 import { UserId } from '../types/note';
 import { generateUUID } from '../utils/uuid';
 import { toUserId } from '../utils/types';
+import { ClerkUserData } from '../utils/clerk';
 
 export class AuthService {
   constructor(private db: DbService) {}
 
   async getOrCreateUserFromClerk(
     clerkUserId: string,
-    email: string
+    email: string,
+    clerkUserData?: ClerkUserData | null
   ): Promise<User> {
     const existingByClerk = await this.db.queryOne<User>(
       'SELECT * FROM users WHERE clerk_user_id = ?',
@@ -21,10 +23,13 @@ export class AuthService {
 
     const now = new Date().toISOString();
 
+    // Use real email from Clerk if available, otherwise fall back to provided email
+    const realEmail = clerkUserData?.email || email || `${clerkUserId}@clerk.placeholder`;
+
     // Check if user exists by email (for migration scenarios)
     const existingByEmail = await this.db.queryOne<User>(
       'SELECT * FROM users WHERE email = ?',
-      [email]
+      [realEmail]
     );
 
     if (existingByEmail) {
@@ -45,14 +50,14 @@ export class AuthService {
 
     await this.db.execute(
       'INSERT INTO users (id, email, clerk_user_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?)',
-      [userId, email, clerkUserId, now, now]
+      [userId, realEmail, clerkUserId, now, now]
     );
 
-    await this.ensureProfile(userId, email, now);
+    await this.ensureProfile(userId, realEmail, now, clerkUserData);
 
     return {
       id: userId,
-      email,
+      email: realEmail,
       clerk_user_id: clerkUserId,
       created_at: now,
       updated_at: now,
@@ -75,7 +80,8 @@ export class AuthService {
   private async ensureProfile(
     userId: UserId,
     email: string,
-    now: string
+    now: string,
+    clerkUserData?: ClerkUserData | null
   ): Promise<void> {
     const existing = await this.db.queryOne<{ username: string }>(
       'SELECT username FROM user_profiles WHERE user_id = ?',
@@ -83,11 +89,36 @@ export class AuthService {
     );
     if (existing) return;
 
-    const username = await this.generateUniqueUsername(email);
+    // Use Clerk username if available, otherwise generate from email
+    let username: string;
+    if (clerkUserData?.username) {
+      // Validate and sanitize Clerk username
+      const sanitized = clerkUserData.username.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/^-+|-+$/g, '');
+      if (sanitized && sanitized.length >= 3 && sanitized.length <= 30) {
+        // Check if username is available
+        const existingUsername = await this.db.queryOne<{ username: string }>(
+          'SELECT username FROM user_profiles WHERE username = ?',
+          [sanitized]
+        );
+        username = existingUsername ? await this.generateUniqueUsername(email) : sanitized;
+      } else {
+        username = await this.generateUniqueUsername(email);
+      }
+    } else {
+      username = await this.generateUniqueUsername(email);
+    }
+
+    // Build display name from Clerk first/last name
+    const displayName = clerkUserData?.firstName || clerkUserData?.lastName
+      ? [clerkUserData.firstName, clerkUserData.lastName].filter(Boolean).join(' ').trim() || null
+      : null;
+
+    // Use Clerk avatar URL if available
+    const avatarUrl = clerkUserData?.imageUrl || null;
 
     await this.db.execute(
       'INSERT OR IGNORE INTO user_profiles (user_id, username, display_name, bio, avatar_url, website_url, location, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [userId, username, null, null, null, null, null, now, now]
+      [userId, username, displayName, null, avatarUrl, null, null, now, now]
     );
   }
 

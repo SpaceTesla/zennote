@@ -6,6 +6,7 @@ import { MiddlewareContext } from '../middleware/cors';
 import { responseFormatter, errorFormatter } from '../middleware/response';
 import { toUserId } from '../utils/types';
 import { createError, ErrorCode } from '../utils/errors';
+import { fetchClerkUserData } from '../utils/clerk';
 
 export async function handleMe(context: MiddlewareContext): Promise<Response> {
   try {
@@ -13,7 +14,17 @@ export async function handleMe(context: MiddlewareContext): Promise<Response> {
     if (!user || !user.id) {
       throw createError(ErrorCode.UNAUTHORIZED, 'User not authenticated', 401);
     }
-    if (!user.email) {
+
+    const dbService = new DbService(env.DB);
+    const cacheService = new CacheService(env.CACHE_KV);
+    const profileService = new ProfileService(dbService, cacheService);
+    const authService = new AuthService(dbService);
+
+    // Fetch full user details from Clerk
+    const clerkUserData = await fetchClerkUserData(user.id, env.CLERK_SECRET_KEY);
+    const email = clerkUserData?.email || user.email;
+    
+    if (!email) {
       throw createError(
         ErrorCode.UNAUTHORIZED,
         'Email not available for authenticated user',
@@ -21,12 +32,7 @@ export async function handleMe(context: MiddlewareContext): Promise<Response> {
       );
     }
 
-    const dbService = new DbService(env.DB);
-    const cacheService = new CacheService(env.CACHE_KV);
-    const profileService = new ProfileService(dbService, cacheService);
-    const authService = new AuthService(dbService);
-
-    const dbUser = await authService.getOrCreateUserFromClerk(user.id, user.email);
+    const dbUser = await authService.getOrCreateUserFromClerk(user.id, email, clerkUserData);
     const userId = toUserId(dbUser.id);
 
     const profile = await profileService.getProfileByUserId(userId);

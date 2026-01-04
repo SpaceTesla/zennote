@@ -12,9 +12,11 @@ import {
   shareNoteSchema,
 } from '../schemas/note.schema';
 import { z } from 'zod';
-import { toNoteId, toUserId, UserId } from '../utils/types';
+import { toNoteId, toUserId } from '../utils/types';
+import { UserId } from '../types/note';
 import { createError, ErrorCode } from '../utils/errors';
 import { paginationMeta } from '../utils/response';
+import { fetchClerkUserData } from '../utils/clerk';
 
 /**
  * Helper function to convert Clerk user ID to database user ID
@@ -24,41 +26,57 @@ async function getDbUserId(
   dbService: DbService
 ): Promise<UserId | null> {
   if (!clerkUserId) return null;
-  
+
   const authService = new AuthService(dbService);
   const dbUser = await authService.getUserByClerkId(clerkUserId);
   return dbUser ? toUserId(dbUser.id) : null;
 }
 
-const querySchema = z.object({
-  page: z
-    .string()
-    .nullable()
-    .optional()
-    .transform((val) => (val ? parseInt(val, 10) : 1)),
-  limit: z
-    .string()
-    .nullable()
-    .optional()
-    .transform((val) => (val ? parseInt(val, 10) : 20)),
+const rawQuerySchema = z.object({
+  page: z.string().nullable().optional(),
+  limit: z.string().nullable().optional(),
   search: z.string().nullable().optional(),
-  sortBy: z
-    .enum(['created_at', 'updated_at', 'title'])
-    .nullable()
-    .optional()
-    .default('created_at'),
-  sortOrder: z
-    .string()
-    .nullable()
-    .optional()
-    .transform((val): 'ASC' | 'DESC' => {
-      if (!val) return 'DESC';
-      const upper = val.toUpperCase();
-      return (upper === 'ASC' || upper === 'DESC' ? upper : 'DESC') as 'ASC' | 'DESC';
-    })
-    .default('DESC'),
+  sortBy: z.enum(['created_at', 'updated_at', 'title']).nullable().optional(),
+  sortOrder: z.string().nullable().optional(),
   userId: z.string().uuid().nullable().optional(),
 });
+
+type RawQueryParams = z.infer<typeof rawQuerySchema>;
+
+interface ParsedQueryParams {
+  page: number;
+  limit: number;
+  search?: string;
+  sortBy: 'created_at' | 'updated_at' | 'title';
+  sortOrder: 'ASC' | 'DESC';
+  userId?: string | null;
+}
+
+function parseQueryParams(raw: RawQueryParams): ParsedQueryParams {
+  return {
+    page: raw.page
+      ? isNaN(parseInt(raw.page, 10))
+        ? 1
+        : parseInt(raw.page, 10)
+      : 1,
+    limit: raw.limit
+      ? isNaN(parseInt(raw.limit, 10))
+        ? 20
+        : parseInt(raw.limit, 10)
+      : 20,
+    search:
+      raw.search === null || raw.search === undefined ? undefined : raw.search,
+    sortBy: raw.sortBy || 'created_at',
+    sortOrder: (() => {
+      if (!raw.sortOrder) return 'DESC';
+      const upper = raw.sortOrder.toUpperCase();
+      return (upper === 'ASC' || upper === 'DESC' ? upper : 'DESC') as
+        | 'ASC'
+        | 'DESC';
+    })(),
+    userId: raw.userId,
+  };
+}
 
 export async function handleGetNotes(
   context: MiddlewareContext
@@ -66,9 +84,9 @@ export async function handleGetNotes(
   try {
     const { env, user } = context;
     console.log('[GetNotes] User from context:', user);
-    
+
     const url = new URL(context.request.url);
-    const params = validateQueryParams(
+    const rawParams = validateQueryParams(
       {
         page: url.searchParams.get('page'),
         limit: url.searchParams.get('limit'),
@@ -77,8 +95,9 @@ export async function handleGetNotes(
         sortOrder: url.searchParams.get('sortOrder'),
         userId: url.searchParams.get('userId'),
       },
-      querySchema
+      rawQuerySchema
     );
+    const params = parseQueryParams(rawParams);
 
     const dbService = new DbService(env.DB);
     const cacheService = new CacheService(env.CACHE_KV);
@@ -87,7 +106,7 @@ export async function handleGetNotes(
     // Convert Clerk user ID to database user ID if user is authenticated
     const currentUserId = await getDbUserId(user?.id, dbService);
     console.log('[GetNotes] Current DB user ID:', currentUserId);
-    
+
     const filterByUserId = params.userId ? toUserId(params.userId) : undefined;
     console.log('[GetNotes] Filter by user ID:', filterByUserId);
 
@@ -100,19 +119,19 @@ export async function handleGetNotes(
       params.sortOrder,
       filterByUserId
     );
-    
-    console.log('[GetNotes] Found notes:', result.notes.length, 'Total:', result.total);
 
-    return responseFormatter(
-      context,
-      result.notes,
-      200,
-      {
-        pagination: paginationMeta(params.page, params.limit, result.total),
-        isPublic: true,
-        maxAge: 120,
-      }
+    console.log(
+      '[GetNotes] Found notes:',
+      result.notes.length,
+      'Total:',
+      result.total
     );
+
+    return responseFormatter(context, result.notes, 200, {
+      pagination: paginationMeta(params.page, params.limit, result.total),
+      isPublic: true,
+      maxAge: 120,
+    });
   } catch (error) {
     console.error('[GetNotes] Error:', error);
     return errorFormatter(context, error);
@@ -173,27 +192,38 @@ export async function handleCreateNote(
   try {
     const { env, user, request } = context;
     console.log('[CreateNote] User from context:', user);
-    
+
     const input = await parseBody(request, createNoteSchema);
     console.log('[CreateNote] Parsed input:', input);
 
     const dbService = new DbService(env.DB);
     const cacheService = new CacheService(env.CACHE_KV);
-    
+
     // If user is authenticated, ensure they exist in the database
     let userId: UserId | null = null;
     if (user) {
       const authService = new AuthService(dbService);
-      // Use a placeholder email if none provided - Clerk user ID is the primary identifier
-      const email = user.email || `${user.id}@clerk.placeholder`;
-      const dbUser = await authService.getOrCreateUserFromClerk(user.id, email);
+
+      // Fetch full user details from Clerk
+      const clerkUserData = await fetchClerkUserData(
+        user.id,
+        env.CLERK_SECRET_KEY
+      );
+      const email =
+        clerkUserData?.email || user.email || `${user.id}@clerk.placeholder`;
+
+      const dbUser = await authService.getOrCreateUserFromClerk(
+        user.id,
+        email,
+        clerkUserData
+      );
       userId = toUserId(dbUser.id);
       console.log('[CreateNote] User ensured in DB:', userId);
     }
 
     const noteService = new NoteService(dbService, cacheService);
     console.log('[CreateNote] Creating note for userId:', userId);
-    
+
     const note = await noteService.createNote(input, userId);
     console.log('[CreateNote] Note created successfully:', note.id);
 
@@ -356,4 +386,3 @@ export async function handleGetCollaborators(
     return errorFormatter(context, error);
   }
 }
-
