@@ -1,45 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { usePathname } from 'next/navigation';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  SignUpButton,
+  UserButton,
+  useUser,
+} from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { useAuth } from '@/lib/hooks/use-auth';
-import { User, LogOut, Settings, FileText } from '@/components/ui/hugeicons';
+import { FileText } from '@/components/ui/hugeicons';
 import { cn } from '@/lib/utils';
 
 export function Header() {
-  const router = useRouter();
   const pathname = usePathname();
-  const { isAuthenticated, user, profile, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    router.push('/');
-  };
-
-  const getInitials = () => {
-    if (profile?.display_name) {
-      return profile.display_name
-        .split(' ')
-        .map((n) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2);
-    }
-    if (user?.email) {
-      return user.email[0].toUpperCase();
-    }
-    return 'U';
-  };
+  const { user } = useUser();
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -57,19 +35,19 @@ export function Header() {
             <span className="font-semibold text-lg">Zennote</span>
           </Link>
           
-          {isAuthenticated && (
+          <SignedIn>
             <nav className="hidden items-center gap-6 md:flex">
               {navItems.map((item) => {
-                if (item.requiresAuth && !isAuthenticated) return null;
+                if (item.requiresAuth && !user?.id) return null;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "text-sm font-medium transition-colors hover:text-primary",
+                      'text-sm font-medium transition-colors hover:text-primary',
                       pathname === item.href
-                        ? "text-foreground"
-                        : "text-muted-foreground"
+                        ? 'text-foreground'
+                        : 'text-muted-foreground'
                     )}
                   >
                     {item.label}
@@ -77,65 +55,33 @@ export function Header() {
                 );
               })}
             </nav>
-          )}
+          </SignedIn>
         </div>
 
         <div className="flex items-center gap-2">
-          {isAuthenticated ? (
-            <>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="hidden md:flex"
-                render={<Link href="/notes"><FileText className="mr-2 h-4 w-4" />Notes</Link>} 
-              />
-              <DropdownMenu>
-                <DropdownMenuTrigger render={
-                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="text-xs">{getInitials()}</AvatarFallback>
-                    </Avatar>
-                    <span className="sr-only">Toggle user menu</span>
-                  </Button>
-                } />
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium leading-none">
-                      {profile?.display_name || user?.email}
-                    </p>
-                    {user?.email && profile?.display_name && (
-                      <p className="text-xs text-muted-foreground mt-1">{user.email}</p>
-                    )}
-                  </div>
-                  <DropdownMenuSeparator />
-                  {user?.id && (
-                    <DropdownMenuItem render={
-                      <Link href={`/profile/${user.id}`} className="flex items-center">
-                        <User className="mr-2 h-4 w-4" />
-                        Profile
-                      </Link>
-                    } />
-                  )}
-                  <DropdownMenuItem render={
-                    <Link href="/profile/edit" className="flex items-center">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
-                    </Link>
-                  } />
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <>
-              <Button variant="ghost" size="sm" render={<Link href="/login">Login</Link>} />
-              <Button size="sm" render={<Link href="/register">Sign up</Link>} />
-            </>
-          )}
+          <SignedIn>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden md:flex"
+              render={<Link href="/notes"><FileText className="mr-2 h-4 w-4" />Notes</Link>}
+            />
+            <UserButton
+              afterSignOutUrl="/"
+              appearance={{
+                elements: { userButtonAvatarBox: 'h-9 w-9' },
+              }}
+            />
+          </SignedIn>
+
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button variant="ghost" size="sm">Login</Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button size="sm">Sign up</Button>
+            </SignUpButton>
+          </SignedOut>
           <ThemeToggle />
         </div>
       </nav>

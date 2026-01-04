@@ -5,11 +5,11 @@ import { useParams, useRouter } from 'next/navigation';
 import { NoteEditorLayout } from '@/components/notes/note-editor-layout';
 import { NoteSettings } from '@/components/notes/note-settings';
 import { useNotes } from '@/lib/hooks/use-notes';
-import { useAuth } from '@/lib/hooks/use-auth';
 import { toast } from 'sonner';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { Visibility } from '@/types/note';
 
 export const runtime = 'edge';
 
@@ -19,10 +19,9 @@ export default function EditNotePage() {
   const noteId = params.id as string;
   const { currentNote, fetchNote, updateNote, deleteNote, isLoading } =
     useNotes();
-  const { isAuthenticated } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
+  const [visibility, setVisibility] = useState<Visibility>('private');
 
   useEffect(() => {
     if (noteId) {
@@ -34,7 +33,7 @@ export default function EditNotePage() {
     if (currentNote) {
       setTitle(currentNote.title);
       setContent(currentNote.content);
-      setIsPublic(currentNote.is_public);
+      setVisibility(currentNote.visibility);
     }
   }, [currentNote]);
 
@@ -48,7 +47,7 @@ export default function EditNotePage() {
       await updateNote(noteId, {
         title: title.trim(),
         content,
-        is_public: isPublic,
+        visibility,
       });
       toast.success('Note updated successfully!');
       router.push(`/notes/${noteId}`);
@@ -94,11 +93,10 @@ export default function EditNotePage() {
           </div>
           <NoteSettings
             title={title}
-            isPublic={isPublic}
+            visibility={visibility}
             onTitleChange={setTitle}
-            onPublicChange={setIsPublic}
+            onVisibilityChange={setVisibility}
             onDelete={handleDelete}
-            isPermanent={currentNote.is_permanent}
             expiresAt={currentNote.expires_at}
           />
         </div>

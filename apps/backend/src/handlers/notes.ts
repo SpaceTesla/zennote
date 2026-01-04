@@ -1,5 +1,6 @@
 import { NoteService } from '../services/note.service';
 import { AccessService } from '../services/access.service';
+import { AuthService } from '../services/auth.service';
 import { DbService } from '../services/db.service';
 import { CacheService } from '../services/cache.service';
 import { MiddlewareContext } from '../middleware/cors';
@@ -11,9 +12,23 @@ import {
   shareNoteSchema,
 } from '../schemas/note.schema';
 import { z } from 'zod';
-import { toNoteId, toUserId } from '../utils/types';
+import { toNoteId, toUserId, UserId } from '../utils/types';
 import { createError, ErrorCode } from '../utils/errors';
 import { paginationMeta } from '../utils/response';
+
+/**
+ * Helper function to convert Clerk user ID to database user ID
+ */
+async function getDbUserId(
+  clerkUserId: string | undefined,
+  dbService: DbService
+): Promise<UserId | null> {
+  if (!clerkUserId) return null;
+  
+  const authService = new AuthService(dbService);
+  const dbUser = await authService.getUserByClerkId(clerkUserId);
+  return dbUser ? toUserId(dbUser.id) : null;
+}
 
 const querySchema = z.object({
   page: z
@@ -50,6 +65,8 @@ export async function handleGetNotes(
 ): Promise<Response> {
   try {
     const { env, user } = context;
+    console.log('[GetNotes] User from context:', user);
+    
     const url = new URL(context.request.url);
     const params = validateQueryParams(
       {
@@ -67,8 +84,12 @@ export async function handleGetNotes(
     const cacheService = new CacheService(env.CACHE_KV);
     const noteService = new NoteService(dbService, cacheService);
 
-    const currentUserId = user ? toUserId(user.id) : null;
+    // Convert Clerk user ID to database user ID if user is authenticated
+    const currentUserId = await getDbUserId(user?.id, dbService);
+    console.log('[GetNotes] Current DB user ID:', currentUserId);
+    
     const filterByUserId = params.userId ? toUserId(params.userId) : undefined;
+    console.log('[GetNotes] Filter by user ID:', filterByUserId);
 
     const result = await noteService.getAllNotes(
       currentUserId,
@@ -79,6 +100,8 @@ export async function handleGetNotes(
       params.sortOrder,
       filterByUserId
     );
+    
+    console.log('[GetNotes] Found notes:', result.notes.length, 'Total:', result.total);
 
     return responseFormatter(
       context,
@@ -87,10 +110,11 @@ export async function handleGetNotes(
       {
         pagination: paginationMeta(params.page, params.limit, result.total),
         isPublic: true,
-        maxAge: 300,
+        maxAge: 120,
       }
     );
   } catch (error) {
+    console.error('[GetNotes] Error:', error);
     return errorFormatter(context, error);
   }
 }
@@ -106,8 +130,32 @@ export async function handleGetNote(
     const cacheService = new CacheService(env.CACHE_KV);
     const noteService = new NoteService(dbService, cacheService);
 
-    const userId = user ? toUserId(user.id) : null;
+    const userId = await getDbUserId(user?.id, dbService);
     const note = await noteService.getNoteById(noteId, userId);
+
+    if (!note) {
+      throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);
+    }
+
+    return responseFormatter(context, note, 200);
+  } catch (error) {
+    return errorFormatter(context, error);
+  }
+}
+
+export async function handleGetNoteBySlug(
+  context: MiddlewareContext
+): Promise<Response> {
+  try {
+    const { env, user, params } = context;
+    const { username, slug } = params;
+
+    const dbService = new DbService(env.DB);
+    const cacheService = new CacheService(env.CACHE_KV);
+    const noteService = new NoteService(dbService, cacheService);
+
+    const userId = await getDbUserId(user?.id, dbService);
+    const note = await noteService.getNoteBySlug(username, slug, userId);
 
     if (!note) {
       throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);
@@ -124,17 +172,34 @@ export async function handleCreateNote(
 ): Promise<Response> {
   try {
     const { env, user, request } = context;
+    console.log('[CreateNote] User from context:', user);
+    
     const input = await parseBody(request, createNoteSchema);
+    console.log('[CreateNote] Parsed input:', input);
 
     const dbService = new DbService(env.DB);
     const cacheService = new CacheService(env.CACHE_KV);
-    const noteService = new NoteService(dbService, cacheService);
+    
+    // If user is authenticated, ensure they exist in the database
+    let userId: UserId | null = null;
+    if (user) {
+      const authService = new AuthService(dbService);
+      // Use a placeholder email if none provided - Clerk user ID is the primary identifier
+      const email = user.email || `${user.id}@clerk.placeholder`;
+      const dbUser = await authService.getOrCreateUserFromClerk(user.id, email);
+      userId = toUserId(dbUser.id);
+      console.log('[CreateNote] User ensured in DB:', userId);
+    }
 
-    const userId = user ? toUserId(user.id) : null;
+    const noteService = new NoteService(dbService, cacheService);
+    console.log('[CreateNote] Creating note for userId:', userId);
+    
     const note = await noteService.createNote(input, userId);
+    console.log('[CreateNote] Note created successfully:', note.id);
 
     return responseFormatter(context, note, 201, { cacheControl: 'no-store' });
   } catch (error) {
+    console.error('[CreateNote] Error:', error);
     return errorFormatter(context, error);
   }
 }
@@ -155,7 +220,10 @@ export async function handleUpdateNote(
     const cacheService = new CacheService(env.CACHE_KV);
     const noteService = new NoteService(dbService, cacheService);
 
-    const userId = toUserId(user.id);
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found', 401);
+    }
     const note = await noteService.updateNote(noteId, input, userId);
 
     return responseFormatter(context, note, 200);
@@ -179,7 +247,10 @@ export async function handleDeleteNote(
     const cacheService = new CacheService(env.CACHE_KV);
     const noteService = new NoteService(dbService, cacheService);
 
-    const userId = toUserId(user.id);
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found', 401);
+    }
     await noteService.deleteNote(noteId, userId);
 
     return new Response(null, {
@@ -209,7 +280,10 @@ export async function handleShareNote(
     const cacheService = new CacheService(env.CACHE_KV);
     const accessService = new AccessService(dbService, cacheService);
 
-    const userId = toUserId(user.id);
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found', 401);
+    }
     const targetUserId = toUserId(input.user_id);
     await accessService.grantAccess(
       noteId,
@@ -244,7 +318,10 @@ export async function handleRevokeAccess(
     const cacheService = new CacheService(env.CACHE_KV);
     const accessService = new AccessService(dbService, cacheService);
 
-    const userId = toUserId(user.id);
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found', 401);
+    }
     await accessService.revokeAccess(noteId, targetUserId, userId);
 
     return responseFormatter(

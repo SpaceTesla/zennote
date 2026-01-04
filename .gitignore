@@ -142,3 +142,10 @@ dist
 
 # Cloudflare Wrangler
 .wrangler/
+
+.env.production
+.env.development
+.env.test
+.env.local
+.dev.vars
+

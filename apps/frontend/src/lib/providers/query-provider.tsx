@@ -2,13 +2,17 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { useState, useEffect } from 'react';
+import { setTokenGetter } from '../api/client';
 
 type Props = {
   children: React.ReactNode;
 };
 
 export function QueryProvider({ children }: Props) {
+  const { getToken } = useAuth();
+  
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -26,6 +30,19 @@ export function QueryProvider({ children }: Props) {
         },
       })
   );
+
+  // Set up the token getter for the API client
+  useEffect(() => {
+    setTokenGetter(async () => {
+      try {
+        const token = await getToken();
+        return token;
+      } catch (error) {
+        console.error('[QueryProvider] Error getting token:', error);
+        return null;
+      }
+    });
+  }, [getToken]);
 
   return (
     <QueryClientProvider client={queryClient}>

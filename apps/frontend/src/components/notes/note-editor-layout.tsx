@@ -129,7 +129,7 @@ export function NoteEditorLayout({
             placeholder={titlePlaceholder}
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            className="flex-1 text-sm font-semibold border-0 shadow-none focus-visible:ring-0 bg-transparent"
+            className="flex-1 text-sm font-semibold border-0 shadow-none focus-visible:ring-0 bg-secondary"
           />
         )}
         <div className="flex gap-2 ml-auto">

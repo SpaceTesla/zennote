@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import { ProfileHeader } from '@/components/profile/profile-header';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card } from '@/components/ui/card';
@@ -10,7 +11,6 @@ import { notesApi } from '@/lib/api/notes';
 import { UserProfile } from '@/types/profile';
 import { Note } from '@/types/note';
 import { NoteList } from '@/components/notes/note-list';
-import { useAuth } from '@/lib/hooks/use-auth';
 import { PaginationMeta } from '@/types/api';
 
 export const runtime = 'edge';
@@ -18,7 +18,7 @@ export const runtime = 'edge';
 export default function ProfilePage() {
   const params = useParams();
   const userId = params.userId as string;
-  const { user: currentUser } = useAuth();
+  const { user: clerkUser } = useUser();
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
@@ -29,13 +29,13 @@ export default function ProfilePage() {
   // Redirect if userId is undefined or invalid
   useEffect(() => {
     if (!userId || userId === 'undefined') {
-      if (currentUser?.id) {
-        router.replace(`/profile/${currentUser.id}`);
+      if (clerkUser?.id) {
+        router.replace(`/profile/${clerkUser.id}`);
       } else {
         router.replace('/');
       }
     }
-  }, [userId, currentUser?.id, router]);
+  }, [userId, clerkUser?.id, router]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -117,7 +117,7 @@ export default function ProfilePage() {
     );
   }
 
-  const isOwnProfile = currentUser?.id === userId;
+  const isOwnProfile = clerkUser?.id === userId || clerkUser?.username === userId;
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl space-y-8">

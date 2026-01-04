@@ -9,25 +9,27 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:create": "wrangler d1 create zennote-d1",
-    "db:migrate": "wrangler d1 execute zennote-d1 --remote --file=./migrations/001_init.sql && wrangler d1 execute zennote-d1 --remote --file=./migrations/002_add_auth.sql",
-    "db:migrate:local": "wrangler d1 execute zennote-d1 --local --file=./migrations/001_init.sql && wrangler d1 execute zennote-d1 --local --file=./migrations/002_add_auth.sql",
+    "db:migrate": "wrangler d1 execute zennote-d1 --remote --file=./migrations/002_v1_professional.sql",
+    "db:migrate:local": "wrangler d1 execute zennote-d1 --local --file=./migrations/002_v1_professional.sql",
     "db:setup": "npm run db:create && npm run db:migrate",
     "db:check": "node scripts/check-db.js",
-    "db:list": "wrangler d1 list"
+    "db:list": "wrangler d1 list",
+    "secrets:set": "powershell -ExecutionPolicy Bypass -File ./set-secrets.ps1 production"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@clerk/backend": "^2.29.0",
     "@cloudflare/workers-types": "^4.20250410.0",
     "wrangler": "^4.9.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "vitest": "^1.0.4",
     "@cloudflare/vitest-pool-workers": "^0.4.0",
     "@types/node": "^20.11.5",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vitest": "^1.0.4"
   }
 }

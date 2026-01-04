@@ -2,51 +2,39 @@ import { DbService } from './db.service';
 import { CacheService } from './cache.service';
 import {
   UserProfile,
-  SocialLink,
   UpdateProfileInput,
-  UpdateSocialLinksInput,
-  ProfileWithSocials,
+  UserSettings,
+  UpdateSettingsInput,
 } from '../types/profile';
 import { UserId } from '../types/note';
-import { generateUUID } from '../utils/uuid';
 import { createError, ErrorCode } from '../utils/errors';
 import { CACHE_TTL } from '../utils/cache';
+
+const RESERVED_USERNAMES = ['admin', 'api', 'auth', 'settings', 'help', 'about'];
 
 export class ProfileService {
   constructor(private db: DbService, private cache: CacheService) {}
 
-  async getProfile(userId: UserId): Promise<ProfileWithSocials | null> {
-    // Check cache
+  async getProfileByUserId(userId: UserId): Promise<UserProfile | null> {
     const cacheKey = this.cache.profileKey(userId);
-    const cached = await this.cache.get<ProfileWithSocials>(cacheKey);
-    if (cached) {
-      return cached;
-    }
+    const cached = await this.cache.get<UserProfile>(cacheKey);
+    if (cached) return cached;
 
     const profile = await this.db.queryOne<UserProfile>(
       'SELECT * FROM user_profiles WHERE user_id = ?',
       [userId]
     );
-
-    if (!profile) {
-      return null;
+    if (profile) {
+      await this.cache.set(cacheKey, profile, CACHE_TTL.PROFILE_PUBLIC);
     }
+    return profile;
+  }
 
-    const socials = await this.db.query<SocialLink>(
-      'SELECT * FROM user_socials WHERE user_id = ? ORDER BY platform',
-      [userId]
+  async getProfileByUsername(username: string): Promise<UserProfile | null> {
+    return await this.db.queryOne<UserProfile>(
+      'SELECT * FROM user_profiles WHERE username = ?',
+      [username]
     );
-
-    const profileWithSocials: ProfileWithSocials = {
-      ...profile,
-      socials: socials.results || [],
-    };
-
-    // Cache profile (public profiles cached longer)
-    const ttl = CACHE_TTL.PROFILE_PUBLIC;
-    await this.cache.set(cacheKey, profileWithSocials, ttl);
-
-    return profileWithSocials;
   }
 
   async updateProfile(
@@ -56,6 +44,11 @@ export class ProfileService {
     const updates: string[] = [];
     const params: unknown[] = [];
 
+    if (input.username !== undefined) {
+      this.validateUsername(input.username);
+      updates.push('username = ?');
+      params.push(input.username.toLowerCase());
+    }
     if (input.display_name !== undefined) {
       updates.push('display_name = ?');
       params.push(input.display_name);
@@ -68,9 +61,9 @@ export class ProfileService {
       updates.push('avatar_url = ?');
       params.push(input.avatar_url);
     }
-    if (input.website !== undefined) {
-      updates.push('website = ?');
-      params.push(input.website);
+    if (input.website_url !== undefined) {
+      updates.push('website_url = ?');
+      params.push(input.website_url);
     }
     if (input.location !== undefined) {
       updates.push('location = ?');
@@ -92,10 +85,18 @@ export class ProfileService {
     params.push(new Date().toISOString());
     params.push(userId);
 
-    await this.db.execute(
-      `UPDATE user_profiles SET ${updates.join(', ')} WHERE user_id = ?`,
-      params
-    );
+    try {
+      await this.db.execute(
+        `UPDATE user_profiles SET ${updates.join(', ')} WHERE user_id = ?`,
+        params
+      );
+    } catch (err: unknown) {
+      const message = (err as Error).message || '';
+      if (message.includes('UNIQUE') && message.includes('username')) {
+        throw createError(ErrorCode.CONFLICT, 'Username already taken', 409);
+      }
+      throw err;
+    }
 
     const profile = await this.db.queryOne<UserProfile>(
       'SELECT * FROM user_profiles WHERE user_id = ?',
@@ -106,46 +107,62 @@ export class ProfileService {
       throw createError(ErrorCode.NOT_FOUND, 'Profile not found', 404);
     }
 
-    // Invalidate cache
     await this.cache.invalidateUser(userId);
-
     return profile;
   }
 
-  async updateSocialLinks(
-    userId: UserId,
-    input: UpdateSocialLinksInput
-  ): Promise<SocialLink[]> {
-    // Delete existing social links
-    await this.db.execute('DELETE FROM user_socials WHERE user_id = ?', [
-      userId,
-    ]);
+  async getSettings(userId: UserId): Promise<UserSettings | null> {
+    return await this.db.queryOne<UserSettings>(
+      'SELECT * FROM user_settings WHERE user_id = ?',
+      [userId]
+    );
+  }
 
-    // Insert new social links
-    for (const link of input.links) {
-      const id = generateUUID();
+  async updateSettings(
+    userId: UserId,
+    input: UpdateSettingsInput
+  ): Promise<UserSettings> {
+    const updates: string[] = [];
+    const params: unknown[] = [];
+
+    if (input.default_visibility !== undefined) {
+      updates.push('default_visibility = ?');
+      params.push(input.default_visibility);
+    }
+    if (input.allow_search_index !== undefined) {
+      updates.push('allow_search_index = ?');
+      params.push(input.allow_search_index ? 1 : 0);
+    }
+    if (input.show_profile !== undefined) {
+      updates.push('show_profile = ?');
+      params.push(input.show_profile ? 1 : 0);
+    }
+
+    if (updates.length > 0) {
+      updates.push('updated_at = ?');
+      params.push(new Date().toISOString());
+      params.push(userId);
+
       await this.db.execute(
-        'INSERT INTO user_socials (id, user_id, platform, url, created_at) VALUES (?, ?, ?, ?, ?)',
-        [id, userId, link.platform, link.url, new Date().toISOString()]
+        `UPDATE user_settings SET ${updates.join(', ')} WHERE user_id = ?`,
+        params
       );
     }
 
-    const socials = await this.db.query<SocialLink>(
-      'SELECT * FROM user_socials WHERE user_id = ? ORDER BY platform',
-      [userId]
-    );
+    const settings = await this.getSettings(userId);
+    if (!settings) {
+      throw createError(ErrorCode.NOT_FOUND, 'Settings not found', 404);
+    }
 
-    // Invalidate cache
     await this.cache.invalidateUser(userId);
-
-    return socials.results || [];
+    return settings;
   }
 
-  async getSocialLinks(userId: UserId): Promise<SocialLink[]> {
-    const socials = await this.db.query<SocialLink>(
-      'SELECT * FROM user_socials WHERE user_id = ? ORDER BY platform',
-      [userId]
-    );
-    return socials.results || [];
+  private validateUsername(username: string) {
+    const lower = username.toLowerCase();
+    if (RESERVED_USERNAMES.includes(lower)) {
+      throw createError(ErrorCode.CONFLICT, 'Username is reserved', 409);
+    }
   }
 }
+

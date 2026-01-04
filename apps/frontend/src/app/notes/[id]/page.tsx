@@ -81,17 +81,21 @@ export default function ViewNotePage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {currentNote.is_public ? (
-                <Badge variant="outline">
-                  <Globe className="h-3 w-3 mr-1" />
-                  Public
-                </Badge>
-              ) : (
-                <Badge variant="outline">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Private
-                </Badge>
-              )}
+              <Badge variant="outline">
+                {currentNote.visibility === 'public' ? (
+                  <>
+                    <Globe className="h-3 w-3 mr-1" />
+                    Public
+                  </>
+                ) : currentNote.visibility === 'unlisted' ? (
+                  'Unlisted'
+                ) : (
+                  <>
+                    <Lock className="h-3 w-3 mr-1" />
+                    Private
+                  </>
+                )}
+              </Badge>
               <Button
                 variant="outline"
                 size="sm"

@@ -1,27 +1,41 @@
 export type PermissionLevel = 'read' | 'write' | 'admin';
+export type Visibility = 'private' | 'unlisted' | 'public';
+export type OwnershipType = 'user' | 'anonymous';
 
 export interface Note {
   id: string;
   title: string;
   content: string;
-  is_public: boolean;
-  is_permanent: boolean;
+  ownership_type: OwnershipType;
+  owner_id: string | null;
+  visibility: Visibility;
+  slug: string | null;
+  slug_owner_id: string | null;
+  is_editable: boolean;
   expires_at: string | null;
+  view_count: number;
   created_at: string;
   updated_at: string;
-  owner_id?: string;
+  user_permission?: PermissionLevel;
 }
 
 export interface CreateNoteInput {
   title: string;
   content: string;
-  is_public?: boolean;
+  visibility: Visibility;
+  ownership_type?: OwnershipType;
+  slug?: string | null;
+  is_editable?: boolean;
+  expires_at?: string | null;
 }
 
 export interface UpdateNoteInput {
   title?: string;
   content?: string;
-  is_public?: boolean;
+  visibility?: Visibility;
+  slug?: string | null;
+  is_editable?: boolean;
+  expires_at?: string | null;
 }
 
 export interface NoteAccess {

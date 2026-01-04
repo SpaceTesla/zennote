@@ -2,7 +2,6 @@
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,28 +23,32 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Visibility } from '@/types/note';
 
 interface NoteSettingsProps {
   title: string;
-  isPublic: boolean;
+  visibility: Visibility;
   onTitleChange: (title: string) => void;
-  onPublicChange: (isPublic: boolean) => void;
+  onVisibilityChange: (visibility: Visibility) => void;
   onDelete?: () => void;
-  isPermanent?: boolean;
+  isEditable?: boolean;
+  onEditableChange?: (value: boolean) => void;
   expiresAt?: string | null;
 }
 
 export function NoteSettings({
   title,
-  isPublic,
+  visibility,
   onTitleChange,
-  onPublicChange,
+  onVisibilityChange,
   onDelete,
-  isPermanent,
+  isEditable,
+  onEditableChange,
   expiresAt,
 }: NoteSettingsProps) {
   const getExpirationInfo = () => {
-    if (isPermanent || !expiresAt) return null;
+    if (!expiresAt) return null;
     const expires = new Date(expiresAt);
     const now = new Date();
     const daysLeft = Math.ceil((expires.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
@@ -73,26 +76,24 @@ export function NoteSettings({
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label htmlFor="public">Public</Label>
-              <p className="text-sm text-muted-foreground">
-                Anyone with the link can view this note
-              </p>
-            </div>
-            <Switch
-              id="public"
-              checked={isPublic}
-              onCheckedChange={onPublicChange}
-            />
+          <div className="space-y-2">
+            <Label>Visibility</Label>
+            <Select value={visibility} onValueChange={(v: Visibility) => onVisibilityChange(v)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="private">Private</SelectItem>
+                <SelectItem value="unlisted">Unlisted</SelectItem>
+                <SelectItem value="public">Public</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          {isPermanent && (
-            <div className="rounded-md bg-muted p-3">
-              <p className="text-sm font-medium">Permanent Note</p>
-              <p className="text-xs text-muted-foreground">
-                This note will never expire
-              </p>
+          {onEditableChange !== undefined && (
+            <div className="space-y-1 text-sm text-muted-foreground">
+              <Label>Editing</Label>
+              <p>{isEditable ? 'Editable' : 'Read-only'}</p>
             </div>
           )}
 
@@ -126,4 +127,3 @@ export function NoteSettings({
     </Dialog>
   );
 }
-

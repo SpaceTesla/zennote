@@ -6,17 +6,16 @@ import { NoteEditorLayout } from '@/components/notes/note-editor-layout';
 import { NoteSettings } from '@/components/notes/note-settings';
 import { Badge } from '@/components/ui/badge';
 import { useNotes } from '@/lib/hooks/use-notes';
-import { useAuth } from '@/lib/hooks/use-auth';
 import { toast } from 'sonner';
 import { ProtectedRoute } from '@/components/auth/protected-route';
+import { Visibility } from '@/types/note';
 
 export default function NewNotePage() {
   const router = useRouter();
   const { createNote, isLoading } = useNotes();
-  const { isAuthenticated } = useAuth();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
+  const [visibility, setVisibility] = useState<Visibility>('private');
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -28,7 +27,7 @@ export default function NewNotePage() {
       await createNote({
         title: title.trim(),
         content,
-        is_public: isPublic,
+        visibility,
       });
       toast.success('Note created successfully!');
       router.push('/notes');
@@ -43,9 +42,9 @@ export default function NewNotePage() {
 
   // Auto-save draft to localStorage
   useEffect(() => {
-    const draft = { title, content, isPublic };
+    const draft = { title, content, visibility };
     localStorage.setItem('note-draft', JSON.stringify(draft));
-  }, [title, content, isPublic]);
+  }, [title, content, visibility]);
 
   // Load draft on mount
   useEffect(() => {
@@ -55,7 +54,7 @@ export default function NewNotePage() {
         const draft = JSON.parse(draftStr);
         setTitle(draft.title || '');
         setContent(draft.content || '');
-        setIsPublic(draft.isPublic || false);
+        setVisibility(draft.visibility || 'private');
       } catch (e) {
         // Ignore parse errors
       }
@@ -74,10 +73,9 @@ export default function NewNotePage() {
           </div>
           <NoteSettings
             title={title}
-            isPublic={isPublic}
+            visibility={visibility}
             onTitleChange={setTitle}
-            onPublicChange={setIsPublic}
-            isPermanent={isAuthenticated}
+            onVisibilityChange={setVisibility}
           />
         </div>
         <div className="flex-1 min-h-0 flex flex-col">

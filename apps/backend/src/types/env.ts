@@ -6,5 +6,7 @@ export interface Env {
   JWT_SECRET: string;
   CORS_ORIGIN?: string;
   API_VERSION?: string;
+  CLERK_PUBLISHABLE_KEY: string;
+  CLERK_SECRET_KEY: string;
 }
 

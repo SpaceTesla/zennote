@@ -1,8 +1,6 @@
-import { AuthService } from '../services/auth.service';
-import { DbService } from '../services/db.service';
+import { createClerkClient, verifyToken } from '@clerk/backend';
 import { createError, ErrorCode } from '../utils/errors';
 import { MiddlewareContext } from './cors';
-import { toUserId } from '../utils/types';
 
 export async function authMiddleware(
   context: MiddlewareContext,
@@ -10,6 +8,8 @@ export async function authMiddleware(
 ): Promise<void> {
   const { request, env } = context;
   const authHeader = request.headers.get('Authorization');
+
+  console.log('[Auth] Auth header present:', !!authHeader, 'Required:', required);
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     if (required) {
@@ -19,15 +19,49 @@ export async function authMiddleware(
         401
       );
     }
+    console.log('[Auth] No auth header, skipping authentication');
     return;
   }
 
   const token = authHeader.substring(7);
-  const dbService = new DbService(env.DB);
-  const authService = new AuthService(dbService, env.JWT_SECRET);
 
-  const payload = await authService.verifyToken(token);
-  if (!payload) {
+  try {
+    console.log('[Auth] Verifying token with Clerk...');
+    console.log('[Auth] Secret key present:', !!env.CLERK_SECRET_KEY);
+    console.log('[Auth] Publishable key present:', !!env.CLERK_PUBLISHABLE_KEY);
+    
+    // Use the standalone verifyToken function from @clerk/backend
+    const payload = await verifyToken(token, {
+      secretKey: env.CLERK_SECRET_KEY,
+    });
+    
+    console.log('[Auth] Token payload:', JSON.stringify(payload, null, 2));
+    
+    const userId = payload?.sub;
+    // Try multiple possible email fields in the JWT
+    const email = (payload as any)?.email || 
+                  (payload as any)?.email_address || 
+                  (payload as any)?.primary_email_address_id ||
+                  '';
+
+    if (!userId) {
+      console.log('[Auth] Token payload missing userId');
+      throw createError(
+        ErrorCode.UNAUTHORIZED,
+        'Invalid or expired token',
+        401
+      );
+    }
+
+    console.log('[Auth] Token verified successfully for user:', userId, 'email:', email);
+    context.user = {
+      id: userId,
+      email,
+    };
+  } catch (error) {
+    console.log('[Auth] Token verification failed:', error);
+    console.log('[Auth] Required:', required);
+    
     if (required) {
       throw createError(
         ErrorCode.UNAUTHORIZED,
@@ -35,12 +69,7 @@ export async function authMiddleware(
         401
       );
     }
-    return;
+    // Don't throw if auth is not required - just continue without user context
   }
-
-  context.user = {
-    id: payload.userId,
-    email: payload.email,
-  };
 }
 

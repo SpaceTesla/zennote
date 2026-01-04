@@ -18,10 +18,16 @@ import { UpdateProfileInput } from '@/types/profile';
 import { toast } from 'sonner';
 
 const profileSchema = z.object({
+  username: z
+    .string()
+    .min(3, 'Username too short')
+    .max(30, 'Username too long')
+    .regex(/^[a-z0-9](?:[a-z0-9-]{1,28}[a-z0-9])?$/, 'Invalid username')
+    .optional(),
   display_name: z.string().min(1, 'Display name is required').optional(),
   bio: z.string().optional(),
   avatar_url: z.string().url('Invalid URL').optional().or(z.literal('')),
-  website: z.string().url('Invalid URL').optional().or(z.literal('')),
+  website_url: z.string().url('Invalid URL').optional().or(z.literal('')),
   location: z.string().optional(),
 });
 
@@ -41,10 +47,11 @@ export function ProfileEditForm({
   const form = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
+      username: initialData?.username || '',
       display_name: initialData?.display_name || '',
       bio: initialData?.bio || '',
       avatar_url: initialData?.avatar_url || '',
-      website: initialData?.website || '',
+      website_url: initialData?.website_url || '',
       location: initialData?.location || '',
     },
   });
@@ -61,6 +68,20 @@ export function ProfileEditForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input {...field} disabled={isLoading} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <FormField
           control={form.control}
           name="display_name"
@@ -105,7 +126,7 @@ export function ProfileEditForm({
 
         <FormField
           control={form.control}
-          name="website"
+          name="website_url"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Website</FormLabel>

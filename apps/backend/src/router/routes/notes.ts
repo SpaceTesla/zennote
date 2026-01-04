@@ -1,6 +1,7 @@
 import {
   handleGetNotes,
   handleGetNote,
+  handleGetNoteBySlug,
   handleCreateNote,
   handleUpdateNote,
   handleDeleteNote,
@@ -21,6 +22,12 @@ export const noteRoutes: Route[] = [
     method: 'GET',
     path: '/v1/notes/:id',
     handler: handleGetNote,
+    authRequired: false,
+  },
+  {
+    method: 'GET',
+    path: '/v1/notes/slug/:username/:slug',
+    handler: handleGetNoteBySlug,
     authRequired: false,
   },
   {

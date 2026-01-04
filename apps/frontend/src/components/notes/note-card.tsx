@@ -44,17 +44,21 @@ export function NoteCard({ note, onEdit, onDelete, onShare }: NoteCardProps) {
             </CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            {note.is_public ? (
-              <Badge variant="outline">
-                <Globe className="h-3 w-3 mr-1" />
-                Public
-              </Badge>
-            ) : (
-              <Badge variant="outline">
-                <Lock className="h-3 w-3 mr-1" />
-                Private
-              </Badge>
-            )}
+            <Badge variant="outline">
+              {note.visibility === 'public' ? (
+                <>
+                  <Globe className="h-3 w-3 mr-1" />
+                  Public
+                </>
+              ) : note.visibility === 'unlisted' ? (
+                'Unlisted'
+              ) : (
+                <>
+                  <Lock className="h-3 w-3 mr-1" />
+                  Private
+                </>
+              )}
+            </Badge>
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /><span className="sr-only">More options</span></Button>} />
               <DropdownMenuContent align="end">

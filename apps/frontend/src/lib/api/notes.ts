@@ -39,6 +39,16 @@ export const notesApi = {
     return response.data;
   },
 
+  async getNoteBySlug(username: string, slug: string): Promise<Note> {
+    const response = await apiClient.get<Note>(config.api.endpoints.notes.getBySlug(username, slug));
+
+    if (!response.success || !response.data) {
+      throw new Error(response.error?.message || 'Failed to fetch note');
+    }
+
+    return response.data;
+  },
+
   async createNote(input: CreateNoteInput): Promise<Note> {
     const response = await apiClient.post<Note>(
       config.api.endpoints.notes.create,

@@ -1,7 +1,8 @@
 import {
   handleGetProfile,
   handleUpdateProfile,
-  handleUpdateSocialLinks,
+  handleGetSettings,
+  handleUpdateSettings,
 } from '../../handlers/profiles';
 import { Route } from '../index';
 
@@ -19,9 +20,15 @@ export const profileRoutes: Route[] = [
     authRequired: true,
   },
   {
+    method: 'GET',
+    path: '/v1/settings/me',
+    handler: handleGetSettings,
+    authRequired: true,
+  },
+  {
     method: 'PUT',
-    path: '/v1/profiles/me/socials',
-    handler: handleUpdateSocialLinks,
+    path: '/v1/settings/me',
+    handler: handleUpdateSettings,
     authRequired: true,
   },
 ];

@@ -121,12 +121,12 @@ export class AccessService {
     }
 
     // Check if owner
-    const owner = await this.db.queryOne<{ is_owner: number }>(
-      'SELECT is_owner FROM user_notes WHERE user_id = ? AND note_id = ?',
-      [userId, noteId]
+    const noteOwner = await this.db.queryOne<{ owner_id: string | null }>(
+      'SELECT owner_id FROM notes WHERE id = ?',
+      [noteId]
     );
 
-    if (owner && owner.is_owner === 1) {
+    if (noteOwner?.owner_id === userId) {
       const result: PermissionLevel = 'owner';
       await this.cache.set(
         cacheKey,
@@ -158,8 +158,8 @@ export class AccessService {
     const notes = await this.db.query<{ id: string }>(
       `SELECT DISTINCT n.id
       FROM notes n
-      WHERE n.is_public = 1
-         OR n.id IN (SELECT note_id FROM user_notes WHERE user_id = ?)
+      WHERE n.visibility != 'private'
+         OR n.owner_id = ?
          OR n.id IN (SELECT note_id FROM note_access WHERE user_id = ?)
          AND (n.expires_at IS NULL OR n.expires_at > ?)`,
       [userId, userId, new Date().toISOString()]

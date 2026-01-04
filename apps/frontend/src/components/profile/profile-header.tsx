@@ -6,7 +6,7 @@ import { UserProfile } from '@/types/profile';
 import { SocialLinks } from './social-links';
 import { Edit } from '@/components/ui/hugeicons';
 import Link from 'next/link';
-import { useAuth } from '@/lib/hooks/use-auth';
+import { useUser } from '@clerk/nextjs';
 
 interface ProfileHeaderProps {
   profile: UserProfile;
@@ -14,8 +14,8 @@ interface ProfileHeaderProps {
 }
 
 export function ProfileHeader({ profile, userId }: ProfileHeaderProps) {
-  const { user: currentUser } = useAuth();
-  const isOwnProfile = currentUser?.id === userId;
+  const { user: clerkUser } = useUser();
+  const isOwnProfile = clerkUser?.id === userId;
 
   const getInitials = () => {
     if (profile.display_name) {
@@ -37,18 +37,19 @@ export function ProfileHeader({ profile, userId }: ProfileHeaderProps) {
           <AvatarFallback className="text-2xl">{getInitials()}</AvatarFallback>
         </Avatar>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold mb-2">{profile.display_name || 'User'}</h1>
+          <h1 className="text-3xl font-bold mb-2">{profile.display_name || profile.username}</h1>
+          <p className="text-sm text-muted-foreground">@{profile.username}</p>
           {profile.bio && <p className="text-muted-foreground mb-2">{profile.bio}</p>}
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             {profile.location && <span>{profile.location}</span>}
-            {profile.website && (
+            {profile.website_url && (
               <a
-                href={profile.website}
+                href={profile.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline"
               >
-                {profile.website.replace(/^https?:\/\//, '')}
+                {profile.website_url.replace(/^https?:\/\//, '')}
               </a>
             )}
           </div>

@@ -21,7 +21,30 @@ crons = ["0 0 * * *"] # Daily at midnight UTC
 # Environment variables
 [vars]
 API_VERSION = "1"
-CORS_ORIGIN = "*" # Change in production
+
+[env.production]
+
+# D1 Database
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "zennote-d1"
+database_id = "8da5eb1f-a1aa-4a13-bf69-68c119275337"
+
+# KV namespace for caching and rate limiting
+[[env.production.kv_namespaces]]
+binding = "CACHE_KV"
+id = "c16b74a0db8b4306a084f863a611b9ae"
+
+# Environment variables
+[env.production.vars]
+API_VERSION = "1"
+
+# Cron triggers for cleanup
+[env.production.triggers]
+crons = ["0 0 * * *"] # Daily at midnight UTC
 
 # Secrets (set via wrangler secret put)
 # JWT_SECRET - Required for authentication
+# CLERK_SECRET_KEY - Required for Clerk verification
+# CLERK_PUBLISHABLE_KEY - Required for Clerk
+# CORS_ORIGIN - Set as secret or add to vars above

@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@clerk/nextjs';
 import { ProfileEditForm } from '@/components/profile/profile-edit-form';
-import { useAuth } from '@/lib/hooks/use-auth';
 import { profilesApi } from '@/lib/api/profiles';
 import { UpdateProfileInput, UserProfile } from '@/types/profile';
 import { ProtectedRoute } from '@/components/auth/protected-route';
@@ -12,7 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 
 export default function EditProfilePage() {
   const router = useRouter();
-  const { user, profile: currentProfile, refreshUser } = useAuth();
+  const { user } = useUser();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,8 +34,7 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (data: UpdateProfileInput) => {
     await profilesApi.updateProfile(data);
-    await refreshUser();
-    router.push(`/profile/${user?.id}`);
+    router.push(`/profile/${data.username || user?.id}`);
   };
 
   if (isLoading) {
@@ -61,10 +60,11 @@ export default function EditProfilePage() {
               initialData={
                 profile
                   ? {
+                      username: profile.username,
                       display_name: profile.display_name ?? undefined,
                       bio: profile.bio ?? undefined,
                       avatar_url: profile.avatar_url ?? undefined,
-                      website: profile.website ?? undefined,
+                      website_url: profile.website_url ?? undefined,
                       location: profile.location ?? undefined,
                     }
                   : undefined

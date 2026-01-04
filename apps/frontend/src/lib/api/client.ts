@@ -2,6 +2,13 @@ import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'ax
 import { config } from '@/config';
 import { StandardResponse, ApiError } from '@/types/api';
 
+// Global token getter - will be set by the QueryProvider
+let getClerkToken: (() => Promise<string | null>) | null = null;
+
+export function setTokenGetter(getter: () => Promise<string | null>) {
+  getClerkToken = getter;
+}
+
 class ApiClient {
   private client: AxiosInstance;
   private etagCache = new Map<string, string>();
@@ -20,10 +27,11 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - attach JWT token and conditional ETag
+    // Request interceptor - attach Clerk session token and conditional ETag
     this.client.interceptors.request.use(
-      (config: InternalAxiosRequestConfig) => {
-        const token = this.getToken();
+      async (config: InternalAxiosRequestConfig) => {
+        // Get token from the global getter
+        const token = getClerkToken ? await getClerkToken() : null;
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -37,7 +45,8 @@ class ApiClient {
         }
 
         if (process.env.NODE_ENV === 'development') {
-          console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`);
+          console.log(`[API Request] ${config.method?.toUpperCase()} ${config.url}`, 
+            token ? '(with auth)' : '(no auth)');
         }
 
         return config;
@@ -77,17 +86,6 @@ class ApiClient {
           return Promise.reject(networkError);
         }
 
-        // Handle 401 Unauthorized - token expired or invalid
-        if (error.response.status === 401) {
-          // Clear token and auth state
-          this.removeToken();
-          if (typeof window !== 'undefined') {
-            // Import and clear auth store
-            const { useAuthStore } = await import('../stores/auth-store');
-            useAuthStore.getState().logout();
-          }
-        }
-
         const apiError = error.response.data?.error;
         if (apiError) {
           const apiErrorObj = new ApiError(
@@ -107,36 +105,6 @@ class ApiClient {
         return Promise.reject(fallbackError);
       }
     );
-  }
-
-  private getToken(): string | null {
-    if (typeof window === 'undefined') return null;
-    
-    // First check Zustand auth store (single source of truth)
-    try {
-      const authStorage = localStorage.getItem('auth-storage');
-      if (authStorage) {
-        const parsed = JSON.parse(authStorage);
-        if (parsed?.state?.token) {
-          return parsed.state.token;
-        }
-      }
-    } catch (e) {
-      // Ignore parse errors
-    }
-    
-    // Fallback to legacy localStorage key for backward compatibility
-    return localStorage.getItem('auth_token');
-  }
-
-  public setToken(token: string): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem('auth_token', token);
-  }
-
-  public removeToken(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem('auth_token');
   }
 
   public async get<T>(url: string, config?: InternalAxiosRequestConfig): Promise<StandardResponse<T>> {
