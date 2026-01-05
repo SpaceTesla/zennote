@@ -33,6 +33,10 @@ export class NoteService {
     const offset = (page - 1) * limit;
     const now = new Date().toISOString();
 
+    // Validate sortBy to prevent SQL injection
+    const allowedSortBy = ['created_at', 'updated_at', 'title'];
+    const validSortBy = allowedSortBy.includes(sortBy) ? sortBy : 'created_at';
+
     let whereClause = 'WHERE (n.expires_at IS NULL OR n.expires_at > ?)';
     const params: unknown[] = [now];
 
@@ -58,7 +62,7 @@ export class NoteService {
       whereClause += ' AND n.visibility != "private"';
     }
 
-    const orderClause = `ORDER BY n.${sortBy} ${sortOrder}`;
+    const orderClause = `ORDER BY n.${validSortBy} ${sortOrder}`;
     const limitClause = 'LIMIT ? OFFSET ?';
     params.push(limit, offset);
 

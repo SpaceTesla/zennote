@@ -52,6 +52,15 @@ interface ParsedQueryParams {
   userId?: string | null;
 }
 
+function validateSortBy(
+  value: string | null | undefined
+): 'created_at' | 'updated_at' | 'title' {
+  if (value === 'created_at' || value === 'updated_at' || value === 'title') {
+    return value;
+  }
+  return 'created_at';
+}
+
 function parseQueryParams(raw: RawQueryParams): ParsedQueryParams {
   return {
     page: raw.page
@@ -66,7 +75,7 @@ function parseQueryParams(raw: RawQueryParams): ParsedQueryParams {
       : 20,
     search:
       raw.search === null || raw.search === undefined ? undefined : raw.search,
-    sortBy: raw.sortBy || 'created_at',
+    sortBy: validateSortBy(raw.sortBy),
     sortOrder: (() => {
       if (!raw.sortOrder) return 'DESC';
       const upper = raw.sortOrder.toUpperCase();
