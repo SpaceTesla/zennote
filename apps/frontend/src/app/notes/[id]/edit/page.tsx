@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { NoteEditorLayout } from '@/components/notes/note-editor-layout';
-import { NoteSettings } from '@/components/notes/note-settings';
 import { useNotes } from '@/lib/hooks/use-notes';
 import { toast } from 'sonner';
 import { ProtectedRoute } from '@/components/auth/protected-route';
@@ -21,7 +20,8 @@ export default function EditNotePage() {
     useNotes();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [visibility, setVisibility] = useState<Visibility>('private');
+  const [visibility, setVisibility] = useState<Visibility>('unlisted');
+  const [slug, setSlug] = useState('');
 
   useEffect(() => {
     if (noteId) {
@@ -34,6 +34,7 @@ export default function EditNotePage() {
       setTitle(currentNote.title);
       setContent(currentNote.content);
       setVisibility(currentNote.visibility);
+      setSlug(currentNote.slug || '');
     }
   }, [currentNote]);
 
@@ -43,11 +44,22 @@ export default function EditNotePage() {
       return;
     }
 
+    // Validate slug if provided for public notes
+    if (visibility === 'public' && slug.trim() && slug.trim().length < 3) {
+      toast.error('Slug must be at least 3 characters long');
+      return;
+    }
+
     try {
       await updateNote(noteId, {
         title: title.trim(),
         content,
         visibility,
+        slug: visibility === 'public' && slug.trim() && slug.trim().length >= 3 
+          ? slug.trim() 
+          : visibility !== 'public' 
+            ? null 
+            : undefined,
       });
       toast.success('Note updated successfully!');
       router.push(`/notes/${noteId}`);
@@ -84,21 +96,11 @@ export default function EditNotePage() {
   return (
     <ProtectedRoute>
       <div className="container mx-auto p-4 flex flex-col flex-1 gap-2 max-w-7xl min-h-0">
-        <div className="flex items-center justify-between mb-2 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">Edit</Badge>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-              Edit Note
-            </h1>
-          </div>
-          <NoteSettings
-            title={title}
-            visibility={visibility}
-            onTitleChange={setTitle}
-            onVisibilityChange={setVisibility}
-            onDelete={handleDelete}
-            expiresAt={currentNote.expires_at}
-          />
+        <div className="flex items-center gap-2 mb-2 flex-shrink-0">
+          <Badge variant="secondary">Edit</Badge>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            Edit Note
+          </h1>
         </div>
         <div className="flex-1 min-h-0 flex flex-col">
           <NoteEditorLayout
@@ -108,6 +110,13 @@ export default function EditNotePage() {
             onCancel={handleCancel}
             isLoading={isLoading}
             className="border rounded-lg"
+            title={title}
+            onTitleChange={setTitle}
+            titlePlaceholder="Enter note title..."
+            visibility={visibility}
+            onVisibilityChange={setVisibility}
+            slug={slug}
+            onSlugChange={setSlug}
           />
         </div>
       </div>

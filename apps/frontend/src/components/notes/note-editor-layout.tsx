@@ -9,6 +9,8 @@ import { MarkdownPreview } from './markdown-preview';
 import { useMediaQuery } from '@/lib/hooks/use-media-query';
 import { Separator } from '@/components/ui/separator';
 import { Maximize2, Minimize2 } from '@/components/ui/hugeicons';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Visibility } from '@/types/note';
 
 interface NoteEditorLayoutProps {
   content: string;
@@ -20,6 +22,10 @@ interface NoteEditorLayoutProps {
   title?: string;
   onTitleChange?: (title: string) => void;
   titlePlaceholder?: string;
+  visibility?: Visibility;
+  onVisibilityChange?: (visibility: Visibility) => void;
+  slug?: string;
+  onSlugChange?: (slug: string) => void;
 }
 
 export function NoteEditorLayout({
@@ -32,6 +38,10 @@ export function NoteEditorLayout({
   title,
   onTitleChange,
   titlePlaceholder = 'Enter note title...',
+  visibility,
+  onVisibilityChange,
+  slug,
+  onSlugChange,
 }: NoteEditorLayoutProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -53,7 +63,7 @@ export function NoteEditorLayout({
       <div className={`flex flex-col h-full bg-background ${className}`}>
         <Tabs defaultValue="edit" className="flex-1 flex flex-col min-h-0">
           {title !== undefined && onTitleChange && (
-            <div className="border-b px-4 py-2 flex-shrink-0">
+            <div className="border-b px-4 py-2 flex-shrink-0 space-y-2">
               <Input
                 type="text"
                 placeholder={titlePlaceholder}
@@ -61,6 +71,41 @@ export function NoteEditorLayout({
                 onChange={(e) => onTitleChange(e.target.value)}
                 className="w-full text-sm font-semibold"
               />
+              {visibility !== undefined && onVisibilityChange && (
+                <div className="flex items-center gap-2">
+                  <Select value={visibility} onValueChange={(v: Visibility) => onVisibilityChange(v)}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue>
+                        {(value) => {
+                          if (value === 'private') return 'Private';
+                          if (value === 'unlisted') return 'Unlisted';
+                          if (value === 'public') return 'Public';
+                          return 'Unlisted';
+                        }}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="private">Private</SelectItem>
+                      <SelectItem value="unlisted">Unlisted</SelectItem>
+                      <SelectItem value="public">Public</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {visibility === 'public' && slug !== undefined && onSlugChange && (
+                    <Input
+                      type="text"
+                      placeholder="slug"
+                      value={slug}
+                      onChange={(e) => {
+                        let value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                        value = value.replace(/^-+|-+$/g, '');
+                        onSlugChange(value);
+                      }}
+                      className="flex-1 text-sm"
+                      maxLength={100}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           )}
           <div className="flex items-center justify-between border-b px-4 py-2 flex-shrink-0">
@@ -131,6 +176,39 @@ export function NoteEditorLayout({
             onChange={(e) => onTitleChange(e.target.value)}
             className="flex-1 text-sm font-semibold border-0 shadow-none focus-visible:ring-0 bg-secondary"
           />
+        )}
+        {visibility === 'public' && slug !== undefined && onSlugChange && (
+          <Input
+            type="text"
+            placeholder="slug (optional)"
+            value={slug}
+            onChange={(e) => {
+              let value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+              value = value.replace(/^-+|-+$/g, '');
+              onSlugChange(value);
+            }}
+            className="w-[150px] text-sm"
+            maxLength={100}
+          />
+        )}
+        {visibility !== undefined && onVisibilityChange && (
+          <Select value={visibility} onValueChange={(v: Visibility) => onVisibilityChange(v)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue>
+                {(value) => {
+                  if (value === 'private') return 'Private';
+                  if (value === 'unlisted') return 'Unlisted';
+                  if (value === 'public') return 'Public';
+                  return 'Unlisted';
+                }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="private">Private</SelectItem>
+              <SelectItem value="unlisted">Unlisted</SelectItem>
+              <SelectItem value="public">Public</SelectItem>
+            </SelectContent>
+          </Select>
         )}
         <div className="flex gap-2 ml-auto">
           {onCancel && (

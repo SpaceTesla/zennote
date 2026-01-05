@@ -29,8 +29,10 @@ import { Visibility } from '@/types/note';
 interface NoteSettingsProps {
   title: string;
   visibility: Visibility;
+  slug?: string;
   onTitleChange: (title: string) => void;
   onVisibilityChange: (visibility: Visibility) => void;
+  onSlugChange?: (slug: string) => void;
   onDelete?: () => void;
   isEditable?: boolean;
   onEditableChange?: (value: boolean) => void;
@@ -40,8 +42,10 @@ interface NoteSettingsProps {
 export function NoteSettings({
   title,
   visibility,
+  slug = '',
   onTitleChange,
   onVisibilityChange,
+  onSlugChange,
   onDelete,
   isEditable,
   onEditableChange,
@@ -79,16 +83,57 @@ export function NoteSettings({
           <div className="space-y-2">
             <Label>Visibility</Label>
             <Select value={visibility} onValueChange={(v: Visibility) => onVisibilityChange(v)}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select visibility" />
               </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="private">Private</SelectItem>
-                <SelectItem value="unlisted">Unlisted</SelectItem>
-                <SelectItem value="public">Public</SelectItem>
+              <SelectContent 
+                position="popper"
+              >
+                <SelectItem value="private">Private - Only you and collaborators</SelectItem>
+                <SelectItem value="unlisted">Unlisted - Anyone with link</SelectItem>
+                <SelectItem value="public">Public - Discoverable by everyone</SelectItem>
               </SelectContent>
             </Select>
+            {visibility === 'public' && (
+              <p className="text-xs text-muted-foreground">
+                Public notes can be discovered and shared with a custom URL
+              </p>
+            )}
+            {visibility === 'unlisted' && (
+              <p className="text-xs text-muted-foreground">
+                Unlisted notes are accessible via direct link but won't appear in public listings
+              </p>
+            )}
+            {visibility === 'private' && (
+              <p className="text-xs text-muted-foreground">
+                Private notes are only visible to you and people you share with
+              </p>
+            )}
           </div>
+
+          {visibility === 'public' && onSlugChange && (
+            <div className="space-y-2">
+              <Label htmlFor="slug">Custom URL Slug (Optional)</Label>
+              <Input
+                id="slug"
+                value={slug}
+                onChange={(e) => {
+                  // Only allow lowercase letters, numbers, and hyphens
+                  let value = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                  // Remove leading and trailing hyphens
+                  value = value.replace(/^-+|-+$/g, '');
+                  onSlugChange(value);
+                }}
+                placeholder="my-awesome-note"
+                pattern="[a-z0-9]([a-z0-9-]*[a-z0-9])?"
+                maxLength={100}
+              />
+              <p className="text-xs text-muted-foreground">
+                Create a custom URL like /username/{slug || 'my-awesome-note'}. 
+                Only lowercase letters, numbers, and hyphens allowed (3-100 characters).
+              </p>
+            </div>
+          )}
 
           {onEditableChange !== undefined && (
             <div className="space-y-1 text-sm text-muted-foreground">
