@@ -63,13 +63,16 @@ export async function authMiddleware(
     console.log('[Auth] Required:', required);
     
     if (required) {
+      const errorMessage = error instanceof Error ? error.message : 'Invalid or expired token';
       throw createError(
         ErrorCode.UNAUTHORIZED,
-        'Invalid or expired token',
+        errorMessage,
         401
       );
     }
     // Don't throw if auth is not required - just continue without user context
+    // Clear any partial user data
+    context.user = undefined;
   }
 }
 

@@ -202,23 +202,30 @@ export async function handleCreateNote(
     // If user is authenticated, ensure they exist in the database
     let userId: UserId | null = null;
     if (user) {
-      const authService = new AuthService(dbService);
+      try {
+        const authService = new AuthService(dbService);
 
-      // Fetch full user details from Clerk
-      const clerkUserData = await fetchClerkUserData(
-        user.id,
-        env.CLERK_SECRET_KEY
-      );
-      const email =
-        clerkUserData?.email || user.email || `${user.id}@clerk.placeholder`;
+        // Fetch full user details from Clerk
+        const clerkUserData = await fetchClerkUserData(
+          user.id,
+          env.CLERK_SECRET_KEY
+        );
+        const email =
+          clerkUserData?.email || user.email || `${user.id}@clerk.placeholder`;
 
-      const dbUser = await authService.getOrCreateUserFromClerk(
-        user.id,
-        email,
-        clerkUserData
-      );
-      userId = toUserId(dbUser.id);
-      console.log('[CreateNote] User ensured in DB:', userId);
+        const dbUser = await authService.getOrCreateUserFromClerk(
+          user.id,
+          email,
+          clerkUserData
+        );
+        userId = toUserId(dbUser.id);
+        console.log('[CreateNote] User ensured in DB:', userId);
+      } catch (error) {
+        console.error('[CreateNote] Error fetching/creating user:', error);
+        // If we can't fetch user data, we can still create an anonymous note
+        // But log the error for debugging
+        console.warn('[CreateNote] Continuing without user authentication');
+      }
     }
 
     const noteService = new NoteService(dbService, cacheService);

@@ -11,7 +11,7 @@ type Props = {
 };
 
 export function QueryProvider({ children }: Props) {
-  const { getToken } = useAuth();
+  const { getToken, isSignedIn } = useAuth();
   
   const [queryClient] = useState(
     () =>
@@ -35,6 +35,12 @@ export function QueryProvider({ children }: Props) {
   useEffect(() => {
     setTokenGetter(async () => {
       try {
+        // Only get token if user is signed in
+        if (!isSignedIn) {
+          return null;
+        }
+        // Get token - Clerk will use the default JWT template
+        // If you have a custom template, specify it: { template: 'your-template-name' }
         const token = await getToken();
         return token;
       } catch (error) {
@@ -42,7 +48,7 @@ export function QueryProvider({ children }: Props) {
         return null;
       }
     });
-  }, [getToken]);
+  }, [getToken, isSignedIn]);
 
   return (
     <QueryClientProvider client={queryClient}>
