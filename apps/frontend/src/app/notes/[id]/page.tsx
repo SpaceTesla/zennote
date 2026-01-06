@@ -4,10 +4,8 @@ import { useParams } from 'next/navigation';
 import { MarkdownPreview } from '@/components/notes/markdown-preview';
 import { useNote } from '@/lib/queries/notes.queries';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { Share2, Edit, Lock, Globe, FileText } from '@/components/ui/hugeicons';
+import { Share2, Edit, Lock, Globe } from '@/components/ui/hugeicons';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ApiError } from '@/types/api';
@@ -21,7 +19,7 @@ export default function ViewNotePage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-4 max-w-4xl space-y-4">
+      <div className="container mx-auto p-4 max-w-3xl space-y-4">
         <Skeleton className="h-8 w-64 mb-2" />
         <Skeleton className="h-4 w-32 mb-4" />
         <Skeleton className="h-96 w-full rounded-lg" />
@@ -38,92 +36,73 @@ export default function ViewNotePage() {
         : 'Failed to load note. It may not exist or you may not have permission to view it.';
 
     return (
-      <div className="container mx-auto p-4 max-w-4xl space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Error Loading Note</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">{errorMessage}</p>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto p-4 max-w-3xl space-y-4">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight">Error Loading Note</h1>
+          <p className="text-muted-foreground text-sm">{errorMessage}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="flex-1 space-y-2">
-              <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-xs text-primary">
-                <FileText className="h-3 w-3" />
-                Note
-              </div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                {currentNote.title}
-              </h1>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
-                <span>
-                  Created{' '}
-                  {format(new Date(currentNote.created_at), 'MMM d, yyyy')}
-                </span>
-                {currentNote.updated_at !== currentNote.created_at && (
-                  <>
-                    <span>•</span>
-                    <span>
-                      Updated{' '}
-                      {format(new Date(currentNote.updated_at), 'MMM d, yyyy')}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline">
-                {currentNote.visibility === 'public' ? (
-                  <>
-                    <Globe className="h-3 w-3 mr-1" />
-                    Public
-                  </>
-                ) : currentNote.visibility === 'unlisted' ? (
-                  'Unlisted'
-                ) : (
-                  <>
-                    <Lock className="h-3 w-3 mr-1" />
-                    Private
-                  </>
-                )}
-              </Badge>
-              <Button
-                variant="outline"
-                size="sm"
-                render={
-                  <Link href={`/notes/${noteId}/edit`}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Link>
-                }
-              />
-              <Button variant="ghost" size="sm">
-                <Share2 className="h-4 w-4 mr-2" />
-                Share
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-      </Card>
-      <Card>
-        <CardContent className="pt-6">
-          <article className="prose prose-lg dark:prose-invert max-w-none">
-            <MarkdownPreview
-              content={currentNote.content}
-              className="min-h-[400px]"
+    <div className="container mx-auto p-4 pb-12 max-w-3xl space-y-6">
+      <header className="space-y-3">
+        <h1 className="text-4xl font-semibold leading-tight tracking-tight text-foreground">
+          {currentNote.title}
+        </h1>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+          <span>
+            Created {format(new Date(currentNote.created_at), 'MMM d, yyyy')}
+          </span>
+          {currentNote.updated_at !== currentNote.created_at && (
+            <>
+              <span>•</span>
+              <span>
+                Updated {format(new Date(currentNote.updated_at), 'MMM d, yyyy')}
+              </span>
+            </>
+          )}
+          <span>•</span>
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-muted/50">
+            {currentNote.visibility === 'public' ? (
+              <>
+                <Globe className="h-3 w-3" />
+                Public
+              </>
+            ) : currentNote.visibility === 'unlisted' ? (
+              'Unlisted'
+            ) : (
+              <>
+                <Lock className="h-3 w-3" />
+                Private
+              </>
+            )}
+          </span>
+          <div className="flex items-center gap-2 ml-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              render={
+                <Link href={`/notes/${noteId}/edit`} className="inline-flex items-center gap-2">
+                  <Edit className="h-4 w-4" />
+                  Edit
+                </Link>
+              }
             />
-          </article>
-        </CardContent>
-      </Card>
+            <Button variant="ghost" size="sm">
+              <Share2 className="h-4 w-4 mr-2" />
+              Share
+            </Button>
+          </div>
+        </div>
+      </header>
+      <article className="prose prose-lg dark:prose-invert max-w-none">
+        <MarkdownPreview
+          content={currentNote.content}
+          className="min-h-[400px]"
+        />
+      </article>
     </div>
   );
 }

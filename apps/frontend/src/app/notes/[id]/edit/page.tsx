@@ -7,7 +7,6 @@ import { useNotes } from '@/lib/hooks/use-notes';
 import { toast } from 'sonner';
 import { ProtectedRoute } from '@/components/auth/protected-route';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import { Visibility } from '@/types/note';
 
 export const runtime = 'edge';
@@ -95,30 +94,22 @@ export default function EditNotePage() {
 
   return (
     <ProtectedRoute>
-      <div className="container mx-auto p-4 flex flex-col flex-1 gap-2 max-w-7xl min-h-0">
-        <div className="flex items-center gap-2 mb-2 flex-shrink-0">
-          <Badge variant="secondary">Edit</Badge>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Edit Note
-          </h1>
-        </div>
-        <div className="flex-1 min-h-0 flex flex-col">
-          <NoteEditorLayout
-            content={content}
-            onContentChange={setContent}
-            onSave={handleSave}
-            onCancel={handleCancel}
-            isLoading={isLoading}
-            className="border rounded-lg"
-            title={title}
-            onTitleChange={setTitle}
-            titlePlaceholder="Enter note title..."
-            visibility={visibility}
-            onVisibilityChange={setVisibility}
-            slug={slug}
-            onSlugChange={setSlug}
-          />
-        </div>
+      <div className="container mx-auto p-4 flex flex-col flex-1 gap-4 max-w-6xl min-h-0">
+        <NoteEditorLayout
+          content={content}
+          onContentChange={setContent}
+          onSave={handleSave}
+          onCancel={handleCancel}
+          isLoading={isLoading}
+          className="border border-border/40 rounded-xl"
+          title={title}
+          onTitleChange={setTitle}
+          titlePlaceholder="Untitled note"
+          visibility={visibility}
+          onVisibilityChange={setVisibility}
+          slug={slug}
+          onSlugChange={setSlug}
+        />
       </div>
     </ProtectedRoute>
   );

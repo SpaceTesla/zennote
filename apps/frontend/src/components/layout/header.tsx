@@ -25,14 +25,11 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background">
-      <nav className="container mx-auto flex h-16 items-center justify-between px-4 max-w-7xl">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background">
+      <nav className="container mx-auto flex h-14 items-center justify-between px-4 max-w-7xl">
         <div className="flex items-center gap-10">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-              <span className="text-primary-foreground text-xs font-semibold">ZN</span>
-            </div>
-            <span className="font-semibold text-lg">Zennote</span>
+            <span className="font-semibold text-lg tracking-tight text-foreground">Zennote</span>
           </Link>
           
           <SignedIn>
@@ -44,7 +41,7 @@ export function Header() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      'text-sm font-medium transition-colors hover:text-primary',
+                      'text-sm font-medium transition-colors hover:text-foreground',
                       pathname === item.href
                         ? 'text-foreground'
                         : 'text-muted-foreground'

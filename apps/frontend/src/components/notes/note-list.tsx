@@ -28,12 +28,12 @@ export function NoteList({
 }: NoteListProps) {
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-2">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="p-6 border rounded-lg">
-            <Skeleton className="h-6 w-3/4 mb-2" />
+          <div key={i} className="rounded-xl border border-border/40 bg-muted/10 p-5">
+            <Skeleton className="h-6 w-3/4 mb-3" />
             <Skeleton className="h-4 w-1/2 mb-4" />
-            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-16 w-full" />
           </div>
         ))}
       </div>
@@ -50,7 +50,7 @@ export function NoteList({
 
   return (
     <>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-8 md:grid-cols-2">
         {notes.map((note) => (
           <NoteCard
             key={note.id}

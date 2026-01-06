@@ -1,9 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Note } from '@/types/note';
 import { format } from 'date-fns';
 import { Globe, Lock, Edit, Trash2, Share2, MoreVertical } from '@/components/ui/hugeicons';
@@ -27,73 +24,75 @@ export function NoteCard({ note, onEdit, onDelete, onShare }: NoteCardProps) {
     : note.content;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <CardTitle className="line-clamp-2 mb-2">
-              <Link
-                href={`/notes/${note.id}`}
-                className="hover:text-primary transition-colors"
+    <article className="group relative rounded-xl border border-border/40 bg-muted/10 p-5 transition-colors hover:bg-muted/30">
+      <div className="absolute right-3 top-3 opacity-0 transition-opacity group-hover:opacity-100">
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <button
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus:outline-none"
+                onClick={(e) => e.stopPropagation()}
               >
-                {note.title}
-              </Link>
-            </CardTitle>
-            <CardDescription>
-              {format(new Date(note.updated_at), 'MMM d, yyyy')}
-            </CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline">
-              {note.visibility === 'public' ? (
-                <>
-                  <Globe className="h-3 w-3 mr-1" />
-                  Public
-                </>
-              ) : note.visibility === 'unlisted' ? (
-                'Unlisted'
-              ) : (
-                <>
-                  <Lock className="h-3 w-3 mr-1" />
-                  Private
-                </>
-              )}
-            </Badge>
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<Button variant="ghost" size="icon" className="h-8 w-8"><MoreVertical className="h-4 w-4" /><span className="sr-only">More options</span></Button>} />
-              <DropdownMenuContent align="end">
-                {onEdit && (
-                  <DropdownMenuItem onClick={() => onEdit(note.id)}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </DropdownMenuItem>
-                )}
-                {onShare && (
-                  <DropdownMenuItem onClick={() => onShare(note.id)}>
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </DropdownMenuItem>
-                )}
-                {onDelete && (
-                  <DropdownMenuItem
-                    onClick={() => onDelete(note.id)}
-                    className="text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Delete
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">More options</span>
+              </button>
+            }
+          />
+          <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+            {onEdit && (
+              <DropdownMenuItem onClick={() => onEdit(note.id)}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </DropdownMenuItem>
+            )}
+            {onShare && (
+              <DropdownMenuItem onClick={() => onShare(note.id)}>
+                <Share2 className="h-4 w-4 mr-2" />
+                Share
+              </DropdownMenuItem>
+            )}
+            {onDelete && (
+              <DropdownMenuItem
+                onClick={() => onDelete(note.id)}
+                className="text-destructive"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <Link href={`/notes/${note.id}`} className="block space-y-3">
+        <div className="space-y-2 pr-10">
+          <h3 className="text-xl font-medium tracking-tight text-foreground line-clamp-2 group-hover:text-foreground">
+            {note.title}
+          </h3>
+          <p className="text-sm text-muted-foreground leading-6 line-clamp-3">
+            {excerpt}
+          </p>
         </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground line-clamp-3">{excerpt}</p>
-      </CardContent>
-      <CardFooter>
-        <Button variant="ghost" size="sm" render={<Link href={`/notes/${note.id}`}>View Note</Link>} className="w-full" />
-      </CardFooter>
-    </Card>
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <span>{format(new Date(note.updated_at), 'MMM d, yyyy')}</span>
+          <span>•</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-1">
+            {note.visibility === 'public' ? (
+              <>
+                <Globe className="h-3 w-3" />
+                Public
+              </>
+            ) : note.visibility === 'unlisted' ? (
+              'Unlisted'
+            ) : (
+              <>
+                <Lock className="h-3 w-3" />
+                Private
+              </>
+            )}
+          </span>
+        </div>
+      </Link>
+    </article>
   );
 }
