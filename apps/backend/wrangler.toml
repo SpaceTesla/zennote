@@ -43,8 +43,11 @@ API_VERSION = "1"
 [env.production.triggers]
 crons = ["0 0 * * *"] # Daily at midnight UTC
 
-# Secrets (set via wrangler secret put)
-# JWT_SECRET - Required for authentication
-# CLERK_SECRET_KEY - Required for Clerk verification
-# CLERK_PUBLISHABLE_KEY - Required for Clerk
-# CORS_ORIGIN - Set as secret or add to vars above
+# Secrets (set via wrangler secret put - DO NOT add as vars in dashboard!)
+# These must be set as SECRETS, not environment variables, or they will be cleared on deploy.
+# Run: npm run secrets:set (for default worker) or npm run secrets:set:prod (for production env)
+# Required secrets:
+#   - JWT_SECRET - Required for authentication
+#   - CLERK_SECRET_KEY - Required for Clerk verification
+#   - CLERK_PUBLISHABLE_KEY - Required for Clerk
+#   - CORS_ORIGIN - CORS origin URL

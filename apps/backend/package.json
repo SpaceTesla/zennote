@@ -14,7 +14,8 @@
     "db:setup": "npm run db:create && npm run db:migrate",
     "db:check": "node scripts/check-db.js",
     "db:list": "wrangler d1 list",
-    "secrets:set": "powershell -ExecutionPolicy Bypass -File ./set-secrets.ps1 production"
+    "secrets:set": "powershell -ExecutionPolicy Bypass -File ./set-secrets.ps1",
+    "secrets:set:prod": "powershell -ExecutionPolicy Bypass -File ./set-secrets.ps1 production"
   },
   "keywords": [],
   "author": "",

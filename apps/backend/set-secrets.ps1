@@ -1,9 +1,10 @@
 # Script to set Cloudflare Workers secrets from .env.production file
 # Usage: .\set-secrets.ps1 [environment]
-# Example: .\set-secrets.ps1 production
+# Example: .\set-secrets.ps1 (for default worker)
+# Example: .\set-secrets.ps1 production (for production environment)
 
 param(
-    [string]$Environment = "production"
+    [string]$Environment = ""
 )
 
 $envFile = ".env.production"
@@ -13,7 +14,11 @@ if (-not (Test-Path $envFile)) {
     exit 1
 }
 
-Write-Host "Reading secrets from $envFile for environment: $Environment" -ForegroundColor Cyan
+if ($Environment) {
+    Write-Host "Reading secrets from $envFile for environment: $Environment" -ForegroundColor Cyan
+} else {
+    Write-Host "Reading secrets from $envFile for default worker" -ForegroundColor Cyan
+}
 Write-Host ""
 
 $secretsSet = 0
@@ -39,7 +44,11 @@ Get-Content $envFile | ForEach-Object {
         }
         
         Write-Host "Setting secret: $key" -ForegroundColor Green
-        echo $value | wrangler secret put $key --env $Environment
+        if ($Environment) {
+            echo $value | wrangler secret put $key --env $Environment
+        } else {
+            echo $value | wrangler secret put $key
+        }
         
         if ($LASTEXITCODE -eq 0) {
             $secretsSet++
