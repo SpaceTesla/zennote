@@ -10,12 +10,12 @@ import { useUser } from '@clerk/nextjs';
 
 interface ProfileHeaderProps {
   profile: UserProfile;
-  userId: string;
+  username: string;
 }
 
-export function ProfileHeader({ profile, userId }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, username }: ProfileHeaderProps) {
   const { user: clerkUser } = useUser();
-  const isOwnProfile = clerkUser?.id === userId;
+  const isOwnProfile = clerkUser?.id === profile.user_id || clerkUser?.username === profile.username;
 
   const getInitials = () => {
     if (profile.display_name) {

@@ -34,7 +34,8 @@ export default function EditProfilePage() {
 
   const handleSubmit = async (data: UpdateProfileInput) => {
     await profilesApi.updateProfile(data);
-    router.push(`/profile/${data.username || user?.id}`);
+    // Redirect to the profile using username (GitHub-style)
+    router.push(`/${data.username || user?.username || user?.id}`);
   };
 
   if (isLoading) {
