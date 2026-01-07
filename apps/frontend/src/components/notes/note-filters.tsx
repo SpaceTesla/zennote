@@ -24,7 +24,14 @@ export function NoteFilters({ filters, onFiltersChange }: NoteFiltersProps) {
         }
       >
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Sort by" />
+          <SelectValue>
+            {(value) => {
+              if (value === 'updated_at') return 'Last updated';
+              if (value === 'created_at') return 'Date created';
+              if (value === 'title') return 'Title';
+              return 'Sort by';
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="updated_at">Last Updated</SelectItem>
@@ -39,8 +46,14 @@ export function NoteFilters({ filters, onFiltersChange }: NoteFiltersProps) {
           onFiltersChange({ sortOrder: value as 'asc' | 'desc' })
         }
       >
-        <SelectTrigger className="w-[120px]">
-          <SelectValue placeholder="Order" />
+        <SelectTrigger className="w-[140px]">
+          <SelectValue>
+            {(value) => {
+              if (value === 'asc') return 'Ascending';
+              if (value === 'desc') return 'Descending';
+              return 'Order';
+            }}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="desc">Descending</SelectItem>
