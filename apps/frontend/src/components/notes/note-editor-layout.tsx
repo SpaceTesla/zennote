@@ -32,6 +32,7 @@ interface NoteEditorLayoutProps {
   onVisibilityChange?: (visibility: Visibility) => void;
   slug?: string;
   onSlugChange?: (slug: string) => void;
+  isAnonymous?: boolean;
 }
 
 export function NoteEditorLayout({
@@ -48,10 +49,18 @@ export function NoteEditorLayout({
   onVisibilityChange,
   slug,
   onSlugChange,
+  isAnonymous = false,
 }: NoteEditorLayoutProps) {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [splitRatio, setSplitRatio] = useState(50);
+
+  // Ensure anonymous notes can't be private
+  useEffect(() => {
+    if (isAnonymous && visibility === 'private' && onVisibilityChange) {
+      onVisibilityChange('unlisted');
+    }
+  }, [isAnonymous, visibility, onVisibilityChange]);
 
   const renderVisibilityControls = () => {
     if (visibility === undefined || !onVisibilityChange) return null;
@@ -81,7 +90,13 @@ export function NoteEditorLayout({
         )}
         <Select
           value={visibility}
-          onValueChange={(v: Visibility) => onVisibilityChange(v)}
+          onValueChange={(v: Visibility) => {
+            // Prevent setting private for anonymous notes
+            if (isAnonymous && v === 'private') {
+              return;
+            }
+            onVisibilityChange(v);
+          }}
         >
           <SelectTrigger className="w-[160px] text-sm bg-transparent">
             <SelectValue>
@@ -94,7 +109,7 @@ export function NoteEditorLayout({
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="private">Private</SelectItem>
+            {!isAnonymous && <SelectItem value="private">Private</SelectItem>}
             <SelectItem value="unlisted">Unlisted</SelectItem>
             <SelectItem value="public">Public</SelectItem>
           </SelectContent>

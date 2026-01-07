@@ -40,9 +40,14 @@ export default function Home() {
               Real-time preview, zero clutter UI, and a clean design keep you in
               flow.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
               <Button
                 render={<Link href="/register">Get Started</Link>}
+                size="lg"
+              />
+              <Button
+                render={<Link href="/notes/anonymous">Create Anonymous Note</Link>}
+                variant="outline"
                 size="lg"
               />
               <Button
