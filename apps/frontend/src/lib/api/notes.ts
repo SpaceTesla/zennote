@@ -39,6 +39,16 @@ export const notesApi = {
     return response.data;
   },
 
+  async getSharedNote(id: string): Promise<Note> {
+    const response = await apiClient.get<Note>(config.api.endpoints.notes.getShared(id));
+
+    if (!response.success || !response.data) {
+      throw new Error(response.error?.message || 'Failed to fetch shared note');
+    }
+
+    return response.data;
+  },
+
   async getNoteBySlug(username: string, slug: string): Promise<Note> {
     const response = await apiClient.get<Note>(config.api.endpoints.notes.getBySlug(username, slug));
 

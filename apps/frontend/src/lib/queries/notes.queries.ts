@@ -17,6 +17,7 @@ export const noteKeys = {
   details: () => [...noteKeys.all, 'detail'] as const,
   detail: (id: string) => [...noteKeys.details(), id] as const,
   collaborators: (id: string) => [...noteKeys.detail(id), 'collaborators'] as const,
+  sharedDetail: (id: string) => [...noteKeys.details(), 'shared', id] as const,
 };
 
 export function useNotes(params?: NotesQueryParams) {
@@ -31,6 +32,15 @@ export function useNote(id: string) {
   return useQuery({
     queryKey: noteKeys.detail(id),
     queryFn: () => notesApi.getNote(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useSharedNote(id: string) {
+  return useQuery({
+    queryKey: noteKeys.sharedDetail(id),
+    queryFn: () => notesApi.getSharedNote(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
   });

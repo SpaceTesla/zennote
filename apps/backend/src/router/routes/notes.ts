@@ -8,6 +8,7 @@ import {
   handleShareNote,
   handleRevokeAccess,
   handleGetCollaborators,
+  handleGetSharedNote,
 } from '../../handlers/notes';
 import { Route } from '../index';
 
@@ -22,6 +23,12 @@ export const noteRoutes: Route[] = [
     method: 'GET',
     path: '/v1/notes/:id',
     handler: handleGetNote,
+    authRequired: false,
+  },
+  {
+    method: 'GET',
+    path: '/v1/s/:id',
+    handler: handleGetSharedNote,
     authRequired: false,
   },
   {

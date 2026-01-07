@@ -92,30 +92,81 @@ export class NoteService {
     return { notes: notesWithAccess, total };
   }
 
-  async getNoteById(noteId: NoteId, userId: UserId | null): Promise<NoteWithAccess | null> {
-    const note = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
-    if (!note) return null;
+  private isExpired(note: Note): boolean {
+    return note.expires_at ? new Date(note.expires_at) < new Date() : false;
+  }
 
-    if (note.expires_at && new Date(note.expires_at) < new Date()) {
-      return null;
+  private notFound(): never {
+    throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);
+  }
+
+  async resolvePrivateNote(
+    noteId: NoteId,
+    userId: UserId | null
+  ): Promise<NoteWithAccess | null> {
+    if (!userId) {
+      this.notFound();
     }
 
-    const access = userId ? await this.checkNoteAccess(noteId, userId) : null;
-    const isPubliclyVisible = note.visibility !== 'private';
+    const note = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
+    if (!note) {
+      this.notFound();
+    }
 
-    if (!isPubliclyVisible && !access) {
-      throw createError(ErrorCode.FORBIDDEN, 'You do not have access to this note', 403);
+    if (note.ownership_type === 'anonymous') {
+      this.notFound();
+    }
+
+    if (this.isExpired(note)) {
+      this.notFound();
+    }
+
+    const userPermission =
+      note.owner_id === userId
+        ? ({ permission_level: 'owner' } as { permission_level: PermissionLevel })
+        : await this.checkNoteAccess(noteId, userId);
+
+    if (!userPermission) {
+      this.notFound();
     }
 
     await this.recordView(noteId, userId);
 
     return {
       ...note,
-      user_permission: access?.permission_level,
+      user_permission: userPermission.permission_level,
     };
   }
 
-  async getNoteBySlug(
+  async resolveSharedNote(
+    noteId: NoteId,
+    userId: UserId | null
+  ): Promise<NoteWithAccess | null> {
+    const note = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
+    if (!note) {
+      this.notFound();
+    }
+
+    if (this.isExpired(note)) {
+      this.notFound();
+    }
+
+    if (note.visibility === 'private') {
+      this.notFound();
+    }
+
+    // Optional: surface permission for logged-in users without affecting visibility
+    const permission = userId ? await this.checkNoteAccess(noteId, userId) : null;
+
+    await this.recordView(noteId, userId);
+
+    return {
+      ...note,
+      user_permission: permission?.permission_level,
+    };
+  }
+
+  async resolvePublicNote(
     username: string,
     slug: string,
     userId: UserId | null
@@ -124,28 +175,52 @@ export class NoteService {
       'SELECT user_id FROM user_profiles WHERE username = ?',
       [username]
     );
-    if (!owner) return null;
+    if (!owner) {
+      return null;
+    }
 
     const note = await this.db.queryOne<Note>(
       'SELECT * FROM notes WHERE slug = ? AND slug_owner_id = ?',
       [slug, owner.user_id]
     );
-    if (!note) return null;
-
-    if (note.expires_at && new Date(note.expires_at) < new Date()) {
-      return null;
+    if (!note) {
+      this.notFound();
     }
 
-    const access = userId ? await this.checkNoteAccess(toNoteId(note.id), userId) : null;
-    const isPubliclyVisible = note.visibility !== 'private';
-
-    if (!isPubliclyVisible && !access) {
-      throw createError(ErrorCode.FORBIDDEN, 'You do not have access to this note', 403);
+    if (note.ownership_type === 'anonymous') {
+      this.notFound();
     }
+
+    if (this.isExpired(note)) {
+      this.notFound();
+    }
+
+    if (note.visibility !== 'public') {
+      this.notFound();
+    }
+
+    const permission =
+      userId && note.owner_id === userId
+        ? ({ permission_level: 'owner' } as { permission_level: PermissionLevel })
+        : userId
+        ? await this.checkNoteAccess(toNoteId(note.id), userId)
+        : null;
 
     await this.recordView(toNoteId(note.id), userId);
 
-    return { ...note, user_permission: access?.permission_level };
+    return { ...note, user_permission: permission?.permission_level };
+  }
+
+  async getNoteById(noteId: NoteId, userId: UserId | null): Promise<NoteWithAccess | null> {
+    return this.resolvePrivateNote(noteId, userId);
+  }
+
+  async getNoteBySlug(
+    username: string,
+    slug: string,
+    userId: UserId | null
+  ): Promise<NoteWithAccess | null> {
+    return this.resolvePublicNote(username, slug, userId);
   }
 
   async createNote(

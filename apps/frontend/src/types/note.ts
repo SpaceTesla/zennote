@@ -1,4 +1,4 @@
-export type PermissionLevel = 'read' | 'write' | 'admin';
+export type PermissionLevel = 'read' | 'write' | 'admin' | 'owner';
 export type Visibility = 'private' | 'unlisted' | 'public';
 export type OwnershipType = 'user' | 'anonymous';
 

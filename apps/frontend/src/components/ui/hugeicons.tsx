@@ -47,6 +47,7 @@ import {
   UserGroupIcon,
   UserIcon,
   YoutubeIcon,
+  Calendar01Icon,
 } from "@hugeicons/core-free-icons"
 
 type IconProps = Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">
@@ -112,6 +113,6 @@ export const InfoIcon = withIcon(Alert01Icon)
 export const Loader2Icon = withIcon(CircleSvgIcon)
 export const OctagonXIcon = withIcon(Cancel01Icon)
 export const TriangleAlertIcon = withIcon(Alert01Icon)
+export const Calendar = withIcon(Calendar01Icon)
 
 export type { IconProps }
-

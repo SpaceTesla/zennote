@@ -159,7 +159,7 @@ export async function handleGetNote(
     const noteService = new NoteService(dbService, cacheService);
 
     const userId = await getDbUserId(user?.id, dbService);
-    const note = await noteService.getNoteById(noteId, userId);
+    const note = await noteService.resolvePrivateNote(noteId, userId);
 
     if (!note) {
       throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);
@@ -183,7 +183,31 @@ export async function handleGetNoteBySlug(
     const noteService = new NoteService(dbService, cacheService);
 
     const userId = await getDbUserId(user?.id, dbService);
-    const note = await noteService.getNoteBySlug(username, slug, userId);
+    const note = await noteService.resolvePublicNote(username, slug, userId);
+
+    if (!note) {
+      throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);
+    }
+
+    return responseFormatter(context, note, 200);
+  } catch (error) {
+    return errorFormatter(context, error);
+  }
+}
+
+export async function handleGetSharedNote(
+  context: MiddlewareContext
+): Promise<Response> {
+  try {
+    const { env, user, params } = context;
+    const noteId = toNoteId(params.id);
+
+    const dbService = new DbService(env.DB);
+    const cacheService = new CacheService(env.CACHE_KV);
+    const noteService = new NoteService(dbService, cacheService);
+
+    const userId = await getDbUserId(user?.id, dbService);
+    const note = await noteService.resolveSharedNote(noteId, userId);
 
     if (!note) {
       throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);

@@ -129,7 +129,7 @@ export function NoteSettings({
                 maxLength={100}
               />
               <p className="text-xs text-muted-foreground">
-                Create a custom URL like /username/{slug || 'my-awesome-note'}. 
+                Create a custom URL like /u/username/{slug || 'my-awesome-note'}. 
                 Only lowercase letters, numbers, and hyphens allowed (3-100 characters).
               </p>
             </div>

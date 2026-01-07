@@ -7,6 +7,7 @@ export const config = {
         list: '/v1/notes',
         get: (id: string) => `/v1/notes/${id}`,
         getBySlug: (username: string, slug: string) => `/v1/notes/slug/${username}/${slug}`,
+        getShared: (id: string) => `/v1/s/${id}`,
         create: '/v1/notes',
         update: (id: string) => `/v1/notes/${id}`,
         delete: (id: string) => `/v1/notes/${id}`,

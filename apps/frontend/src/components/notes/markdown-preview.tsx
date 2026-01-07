@@ -166,7 +166,7 @@ export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
 
   return (
     <ScrollArea className={cn('h-full', className)}>
-      <div className="markdown-prose px-6 max-w-3xl mx-auto w-full">
+      <div className="markdown-prose px-2 max-w-3xl mx-auto w-full">
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
           rehypePlugins={[rehypeRaw]}

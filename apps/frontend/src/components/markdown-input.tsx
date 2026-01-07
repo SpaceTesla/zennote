@@ -41,7 +41,7 @@ export default function MarkdownInput() {
 
       // Handle successful save
       toast(`Your note has been saved with ID: ${data.id}`);
-      router.push(`/note/${data.id}`);
+      router.push(`/notes/${data.id}`);
 
       console.log('Saved note:', data);
     } catch (error) {
