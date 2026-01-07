@@ -18,9 +18,10 @@ export default function EditProfilePage() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user?.id) return;
+      if (!user) return;
       try {
-        const data = await profilesApi.getProfile(user.id);
+        const identifier = user.username || user.id;
+        const data = await profilesApi.getProfile(identifier);
         setProfile(data);
       } catch (error) {
         console.error('Failed to fetch profile:', error);
@@ -30,7 +31,7 @@ export default function EditProfilePage() {
     };
 
     fetchProfile();
-  }, [user?.id]);
+  }, [user]);
 
   const handleSubmit = async (data: UpdateProfileInput) => {
     await profilesApi.updateProfile(data);
