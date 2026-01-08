@@ -1,6 +1,10 @@
-'use client';
-
 import { SignUp } from '@clerk/nextjs';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Get Started – Zennote',
+  description: 'Create your Zennote account to craft calm, focused notes.',
+};
 
 export const dynamic = 'force-dynamic';
 

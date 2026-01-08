@@ -10,6 +10,12 @@ import {
   generateUserNotesPattern,
   CACHE_TTL,
   CacheKey,
+  generatePublicNoteMetaKeyById,
+  generatePublicNoteMetaKeyBySlug,
+  generatePublicNoteListKey,
+  generatePublicNoteMetaPattern,
+  generatePublicNoteMetaSlugPattern,
+  generatePublicNoteListPattern,
 } from '../utils/cache';
 import { NoteId, UserId } from '../types/note';
 
@@ -50,6 +56,16 @@ export class CacheService {
   }
 
   async setList<T>(
+    key: CacheKey,
+    value: T,
+    ttl: number,
+    pattern: string
+  ): Promise<void> {
+    await this.set(key, value, ttl);
+    await this.trackKey(pattern, key);
+  }
+
+  async setWithPattern<T>(
     key: CacheKey,
     value: T,
     ttl: number,
@@ -120,6 +136,19 @@ export class CacheService {
     await this.invalidatePattern(notesPattern);
   }
 
+  async invalidatePublicNoteMeta(noteId: NoteId, slugOwnerId?: string | null): Promise<void> {
+    await this.invalidatePattern(generatePublicNoteMetaPattern(noteId));
+    if (slugOwnerId) {
+      await this.invalidatePattern(generatePublicNoteMetaSlugPattern(slugOwnerId));
+    }
+    await this.invalidatePublicNoteList();
+  }
+
+  async invalidatePublicNoteList(): Promise<void> {
+    await this.invalidatePattern(generatePublicNoteListPattern());
+    await this.delete(generatePublicNoteListKey());
+  }
+
   generateETag(data: unknown): string {
     const str = JSON.stringify(data);
     // Simple hash function for ETag
@@ -137,5 +166,8 @@ export class CacheService {
   profileKey = generateProfileCacheKey;
   accessKey = generateAccessCacheKey;
   userNotesKey = generateUserNotesCacheKey;
+  publicNoteMetaKeyById = generatePublicNoteMetaKeyById;
+  publicNoteMetaKeyBySlug = generatePublicNoteMetaKeyBySlug;
+  publicNoteListKey = generatePublicNoteListKey;
 }
 

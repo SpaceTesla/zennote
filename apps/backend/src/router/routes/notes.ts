@@ -9,10 +9,31 @@ import {
   handleRevokeAccess,
   handleGetCollaborators,
   handleGetSharedNote,
+  handleGetPublicNoteMetadata,
+  handleGetPublicNoteMetadataBySlug,
+  handleListPublicNotes,
 } from '../../handlers/notes';
 import { Route } from '../index';
 
 export const noteRoutes: Route[] = [
+  {
+    method: 'GET',
+    path: '/v1/public/notes/list',
+    handler: handleListPublicNotes,
+    authRequired: false,
+  },
+  {
+    method: 'GET',
+    path: '/v1/public/notes/:id/metadata',
+    handler: handleGetPublicNoteMetadata,
+    authRequired: false,
+  },
+  {
+    method: 'GET',
+    path: '/v1/public/notes/slug/:username/:slug/metadata',
+    handler: handleGetPublicNoteMetadataBySlug,
+    authRequired: false,
+  },
   {
     method: 'GET',
     path: '/v1/notes',

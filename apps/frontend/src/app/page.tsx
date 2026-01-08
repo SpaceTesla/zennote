@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +19,39 @@ import {
 import { ScrollReveal } from '@/components/landing/scroll-reveal';
 import { Separator } from '@/components/ui/separator';
 import { AmbientGlow } from '@/components/landing/ambient-glow';
+import { BASE_URL } from '@/config';
+
+const HOME_TITLE = 'Zennote – Calm, Focused Note-Taking';
+const HOME_DESCRIPTION =
+  'Zennote turns messy ideas into polished, shareable knowledge with a calm, minimal markdown experience.';
+
+export const metadata: Metadata = {
+  title: HOME_TITLE,
+  description: HOME_DESCRIPTION,
+  alternates: {
+    canonical: `${BASE_URL}/`,
+  },
+  openGraph: {
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    url: `${BASE_URL}/`,
+    type: 'website',
+    images: [
+      {
+        url: `${BASE_URL}/logo.svg`,
+        width: 1200,
+        height: 630,
+        alt: 'Zennote',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: HOME_TITLE,
+    description: HOME_DESCRIPTION,
+    images: [`${BASE_URL}/logo.svg`],
+  },
+};
 
 export default function Home() {
   return (

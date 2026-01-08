@@ -7,6 +7,7 @@ import './globals.css';
 import Footer from '@/components/footer';
 import { Header } from '@/components/layout/header';
 import { QueryProvider } from '@/lib/providers/query-provider';
+import { BASE_URL } from '@/config';
 
 const inter = Inter({
   variable: '--font-sans',
@@ -21,9 +22,21 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Zennote - Paste. Beautify. Share.',
-  description:
-    'Zennote turns messy AI markdown into beautiful shareable notes.',
+  metadataBase: new URL(BASE_URL),
+  title: 'Zennote – Calm, Focused Note-Taking',
+  description: 'Zennote turns messy markdown into polished, shareable notes.',
+  openGraph: {
+    title: 'Zennote – Calm, Focused Note-Taking',
+    description: 'Zennote turns messy markdown into polished, shareable notes.',
+    url: BASE_URL,
+    siteName: 'Zennote',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Zennote – Calm, Focused Note-Taking',
+    description: 'Zennote turns messy markdown into polished, shareable notes.',
+  },
 };
 
 export default function RootLayout({

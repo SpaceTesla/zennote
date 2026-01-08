@@ -279,6 +279,7 @@ export class NoteService {
     }
 
     await this.cache.invalidatePattern(`notes:list:${ownerId || 'anon'}`);
+    await this.cache.invalidatePublicNoteMeta(noteId, ownerId);
     return note;
   }
 
@@ -356,6 +357,7 @@ export class NoteService {
 
     await this.cache.invalidateNote(noteId);
     await this.cache.invalidatePattern(`notes:list:${note.owner_id || 'anon'}`);
+    await this.cache.invalidatePublicNoteMeta(noteId, note.owner_id);
     return updated;
   }
 
@@ -363,6 +365,11 @@ export class NoteService {
     const access = await this.checkNoteAccess(noteId, userId);
     if (!access || (access.permission_level !== 'owner' && access.permission_level !== 'admin')) {
       throw createError(ErrorCode.FORBIDDEN, 'You do not have permission to delete this note', 403);
+    }
+
+    const note = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
+    if (!note) {
+      throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);
     }
 
     await this.db.execute(
@@ -374,6 +381,7 @@ export class NoteService {
     await this.cache.invalidateNote(noteId);
     await this.cache.invalidatePattern(`notes:list:${userId}`);
     await this.cache.invalidatePattern(`notes:list:anon`);
+    await this.cache.invalidatePublicNoteMeta(noteId, note.owner_id);
   }
 
   async checkNoteAccess(

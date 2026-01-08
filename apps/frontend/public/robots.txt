@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /notes/
+Disallow: /note/
+Disallow: /profile/edit
+Disallow: /api/
+
+Sitemap: https://zennote.app/sitemap.xml
+User-agent: *
+Allow: /
+Disallow: /notes/
+Disallow: /note/
+Disallow: /profile/edit
+Disallow: /api/
+
+Sitemap: https://zennote.app/sitemap.xml
