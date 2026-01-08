@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Github, Linkedin, Instagram, BookOpen } from '@/components/ui/hugeicons';
+import { Logo } from '@/components/logo';
 
 export default function Footer() {
   return (
@@ -7,10 +8,8 @@ export default function Footer() {
       <div className="container mx-auto flex flex-col gap-8 py-10 px-4 md:flex-row md:py-12 max-w-7xl">
         <div className="flex flex-col gap-4 md:w-1/3">
           <div className="flex items-center gap-2">
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary">
-              <span className="text-primary-foreground text-xs font-semibold">ZN</span>
-            </div>
-            <span className="font-semibold text-lg">Zennote</span>
+            <Logo className="h-7 w-7 text-primary" />
+            <span className="font-semibold text-lg text-primary">Zennote</span>
           </div>
           <p className="text-sm text-muted-foreground">
             Beautiful markdown notes, crafted for focus. Turn messy ideas into polished, shareable knowledge.

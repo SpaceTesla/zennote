@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { FileText } from '@/components/ui/hugeicons';
+import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
 export function Header() {
@@ -29,9 +30,12 @@ export function Header() {
       <nav className="container mx-auto flex h-14 items-center justify-between px-4 max-w-7xl">
         <div className="flex items-center gap-10">
           <Link href="/" className="flex items-center gap-2">
-            <span className="font-semibold text-lg tracking-tight text-foreground">Zennote</span>
+            <Logo className="h-6 w-6 text-primary" />
+            <span className="font-semibold text-lg tracking-tight text-primary">
+              Zennote
+            </span>
           </Link>
-          
+
           <SignedIn>
             <nav className="hidden items-center gap-6 md:flex">
               {navItems.map((item) => {
@@ -61,7 +65,12 @@ export function Header() {
               variant="ghost"
               size="sm"
               className="hidden md:flex"
-              render={<Link href="/notes"><FileText className="mr-2 h-4 w-4" />Notes</Link>}
+              render={
+                <Link href="/notes">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Notes
+                </Link>
+              }
             />
             <UserButton
               afterSignOutUrl="/"
@@ -73,7 +82,9 @@ export function Header() {
 
           <SignedOut>
             <SignInButton mode="modal">
-              <Button variant="ghost" size="sm">Login</Button>
+              <Button variant="ghost" size="sm">
+                Login
+              </Button>
             </SignInButton>
             <SignUpButton mode="modal">
               <Button size="sm">Sign up</Button>
