@@ -1,47 +1,27 @@
-import type { Highlighter } from 'shiki';
+import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki';
 
-let highlighterPromise: Promise<Highlighter> | null = null;
+let highlighterPromise: Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> | null = null;
 
-const languages: string[] = [
-  'bash',
-  'c',
-  'cpp',
-  'css',
-  'diff',
-  'docker',
-  'go',
-  'graphql',
-  'html',
-  'java',
+// Only include commonly used languages to reduce bundle size
+const languages: BundledLanguage[] = [
   'javascript',
-  'json',
-  'kotlin',
-  'markdown',
-  'php',
-  'python',
-  'ruby',
-  'rust',
-  'scala',
-  'shell',
-  'sql',
-  'swift',
-  'toml',
-  'tsx',
   'typescript',
-  'yaml',
+  'tsx',
+  'json',
+  'html',
+  'css',
+  'python',
+  'bash',
+  'sql',
+  'markdown',
 ];
 
 export function loadHighlighter() {
   if (highlighterPromise) return highlighterPromise;
 
-  highlighterPromise = import('shiki').then(async (shiki) => {
-    return shiki.getHighlighter({
-      themes: [
-        'github-light-default',
-        'github-dark-default',
-        'rose-pine-dawn',
-        'rose-pine',
-      ],
+  highlighterPromise = import('shiki/bundle/web').then(async (shiki) => {
+    return shiki.createHighlighter({
+      themes: ['github-dark-default', 'github-light-default'],
       langs: languages,
     });
   });

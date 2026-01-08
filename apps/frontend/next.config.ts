@@ -6,17 +6,27 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 const nextConfig: NextConfig = {
   // Using @cloudflare/next-on-pages for Cloudflare Pages deployment
-  // This allows us to use Next.js runtime features instead of static export
   images: {
     unoptimized: true, // Cloudflare handles image optimization
   },
-  trailingSlash: true, // Better routing on Cloudflare
+  trailingSlash: true,
   reactStrictMode: true,
   experimental: {
     turbo: {
       // Turbopack configuration
-      // Add any Turbopack-specific options here if needed
     },
+  },
+  // Optimize for smaller bundles
+  webpack: (config, { isServer }) => {
+    // Minimize bundle size for edge runtime
+    if (!isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        // Use lighter shiki bundle
+        shiki: 'shiki/bundle/web',
+      };
+    }
+    return config;
   },
 };
 
