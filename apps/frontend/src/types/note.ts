@@ -80,23 +80,3 @@ export interface PublicNoteListItem {
   owner_username: string | null;
   updated_at: string;
 }
-
-export interface PublicNoteMetadata {
-  id: string;
-  title: string;
-  contentExcerpt: string;
-  visibility: 'public';
-  slug: string | null;
-  slug_owner_id: string | null;
-  owner_username: string | null;
-  updated_at: string;
-  created_at: string;
-}
-
-export interface PublicNoteListItem {
-  id: string;
-  title: string;
-  slug: string | null;
-  slug_owner_id: string | null;
-  updated_at: string;
-}
