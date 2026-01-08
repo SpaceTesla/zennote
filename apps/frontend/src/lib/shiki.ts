@@ -2,51 +2,35 @@ import type { Highlighter } from 'shiki';
 
 let highlighterPromise: Promise<Highlighter> | null = null;
 
-// Fine-grained imports - only load what we need
+// Fine-grained configuration - only load what we need
 // This dramatically reduces bundle size from ~9MB to ~500KB
-async function loadLanguages() {
-  const langs = await Promise.all([
-    import('shiki/langs/javascript'),
-    import('shiki/langs/typescript'),
-    import('shiki/langs/tsx'),
-    import('shiki/langs/json'),
-    import('shiki/langs/html'),
-    import('shiki/langs/css'),
-    import('shiki/langs/python'),
-    import('shiki/langs/bash'),
-    import('shiki/langs/sql'),
-    import('shiki/langs/markdown'),
-  ]);
+// Using explicit language/theme arrays instead of full bundle
+const LANGUAGES = [
+  'javascript',
+  'typescript',
+  'tsx',
+  'json',
+  'html',
+  'css',
+  'python',
+  'bash',
+  'sql',
+  'markdown',
+] as const;
 
-  return langs.map((mod) => mod.default);
-}
+const THEMES = ['github-dark-default', 'github-light-default'] as const;
 
-async function loadThemes() {
-  const themes = await Promise.all([
-    import('shiki/themes/github-dark-default'),
-    import('shiki/themes/github-light-default'),
-  ]);
-
-  return themes.map((mod) => mod.default);
-}
-
-export function loadHighlighter() {
+export function loadHighlighter(): Promise<Highlighter> {
   if (highlighterPromise) return highlighterPromise;
 
   highlighterPromise = (async () => {
-    // Use fine-grained core instead of full shiki bundle
-    const { createHighlighterCore } = await import('shiki/core');
-    const { createJavaScriptRegexEngine } = await import('shiki/engine/javascript');
+    // Use getHighlighter with explicit languages/themes
+    // This is more efficient than loading the full bundle
+    const { getHighlighter } = await import('shiki');
 
-    const langs = await loadLanguages();
-    const themes = await loadThemes();
-
-    // Use JavaScript regex engine instead of WASM (smaller, faster for web)
-    return createHighlighterCore({
-      langs,
-      themes,
-      // JavaScript engine is smaller and faster than WASM for web
-      engine: createJavaScriptRegexEngine(),
+    return getHighlighter({
+      themes: [...THEMES],
+      langs: [...LANGUAGES],
     });
   })();
 
