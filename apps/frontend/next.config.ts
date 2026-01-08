@@ -16,18 +16,6 @@ const nextConfig: NextConfig = {
       // Turbopack configuration
     },
   },
-  // Optimize for smaller bundles
-  webpack: (config, { isServer }) => {
-    // Minimize bundle size for edge runtime
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        // Use lighter shiki bundle
-        shiki: 'shiki/bundle/web',
-      };
-    }
-    return config;
-  },
 };
 
 // Only apply bundle analyzer when not using Turbopack (bundle analyzer is webpack-only)

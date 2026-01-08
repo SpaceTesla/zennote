@@ -1,9 +1,9 @@
-import type { BundledLanguage, BundledTheme, HighlighterGeneric } from 'shiki';
+import type { Highlighter } from 'shiki';
 
-let highlighterPromise: Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> | null = null;
+let highlighterPromise: Promise<Highlighter> | null = null;
 
 // Only include commonly used languages to reduce bundle size
-const languages: BundledLanguage[] = [
+const languages = [
   'javascript',
   'typescript',
   'tsx',
@@ -14,15 +14,15 @@ const languages: BundledLanguage[] = [
   'bash',
   'sql',
   'markdown',
-];
+] as const;
 
 export function loadHighlighter() {
   if (highlighterPromise) return highlighterPromise;
 
-  highlighterPromise = import('shiki/bundle/web').then(async (shiki) => {
+  highlighterPromise = import('shiki').then(async (shiki) => {
     return shiki.createHighlighter({
       themes: ['github-dark-default', 'github-light-default'],
-      langs: languages,
+      langs: [...languages],
     });
   });
 
