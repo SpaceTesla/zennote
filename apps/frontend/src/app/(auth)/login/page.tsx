@@ -1,6 +1,8 @@
 import { SignIn } from '@clerk/nextjs';
 import type { Metadata } from 'next';
 
+export const runtime = 'edge';
+
 export const metadata: Metadata = {
   title: 'Login – Zennote',
   description: 'Sign in to access your notes and stay in flow.',
