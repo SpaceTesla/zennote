@@ -6,10 +6,20 @@ import { PublicNoteMetadata } from '@/types/note';
 const FALLBACK_TITLE = 'Untitled Note';
 const FALLBACK_DESCRIPTION =
   'A note shared on Zennote – calm, focused note-taking.';
+const OG_IMAGE_BASE_URL =
+  process.env.NEXT_PUBLIC_OG_CDN_BASE_URL ||
+  'https://pub-50ad70a7eabe4f36b7f1d6e21a269101.r2.dev';
+const DEFAULT_OG_IMAGE = `${OG_IMAGE_BASE_URL}/og/default.png`;
 
 type CanonicalContext =
   | { route: 'id'; noteId: string }
   | { route: 'slug'; username: string; slug: string };
+
+function buildOgImageUrl(noteId?: string | null) {
+  const trimmed = noteId?.trim();
+  if (!trimmed) return DEFAULT_OG_IMAGE;
+  return `${OG_IMAGE_BASE_URL}/og/notes/${trimmed}.png`;
+}
 
 function buildMetadata(
   meta: PublicNoteMetadata | null,
@@ -18,7 +28,7 @@ function buildMetadata(
 ): Metadata {
   const title = meta?.title?.trim() || FALLBACK_TITLE;
   const description = meta?.contentExcerpt?.trim() || FALLBACK_DESCRIPTION;
-  const ogImageUrl = `${BASE_URL}/og/note/${meta?.id ?? 'note'}`;
+  const ogImageUrl = buildOgImageUrl(meta?.id);
   const canonicalUrl = `${BASE_URL}${canonicalPath}`;
 
   return {

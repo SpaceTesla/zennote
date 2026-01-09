@@ -14,6 +14,11 @@ binding = "CACHE_KV"
 id = "c16b74a0db8b4306a084f863a611b9ae"
 preview_id = "4ec0acf237ff4b0ebd94607a5feb7a35"
 
+# R2 bucket for pre-generated OG images
+[[r2_buckets]]
+binding = "OG_IMAGES"
+bucket_name = "zennote-bucket"
+
 # Cron triggers for cleanup
 [triggers]
 crons = ["0 0 * * *"] # Daily at midnight UTC
@@ -34,6 +39,11 @@ database_id = "8da5eb1f-a1aa-4a13-bf69-68c119275337"
 [[env.production.kv_namespaces]]
 binding = "CACHE_KV"
 id = "c16b74a0db8b4306a084f863a611b9ae"
+
+# R2 bucket for pre-generated OG images
+[[env.production.r2_buckets]]
+binding = "OG_IMAGES"
+bucket_name = "zennote-bucket"
 
 # Environment variables
 [env.production.vars]

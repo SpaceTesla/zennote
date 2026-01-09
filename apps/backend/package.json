@@ -16,15 +16,20 @@
     "db:list": "wrangler d1 list",
     "secrets:set": "powershell -ExecutionPolicy Bypass -File ./set-secrets.ps1",
     "secrets:set:prod": "powershell -ExecutionPolicy Bypass -File ./set-secrets.ps1 production",
-    "delete-account": "node scripts/delete-account.js"
+    "delete-account": "node scripts/delete-account.js",
+    "og:generate": "tsx --env-file=.env.local scripts/generate-og-images.ts",
+    "og:default": "tsx --env-file=.env.local scripts/generate-default-og.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.744.0",
     "@clerk/backend": "^2.29.0",
     "@cloudflare/workers-types": "^4.20250410.0",
+    "@napi-rs/canvas": "^0.1.66",
+    "dotenv": "^16.4.7",
     "wrangler": "^4.9.1",
     "zod": "^3.22.4"
   },
