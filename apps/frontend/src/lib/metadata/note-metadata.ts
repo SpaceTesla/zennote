@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { BASE_URL } from '@/config';
-import { publicNotesApi } from '@/lib/api/public-notes';
+import { BASE_URL, config } from '@/config';
 import { PublicNoteMetadata } from '@/types/note';
 
 const FALLBACK_TITLE = 'Untitled Note';
@@ -10,6 +9,23 @@ const OG_IMAGE_BASE_URL =
   process.env.NEXT_PUBLIC_OG_CDN_BASE_URL ||
   'https://pub-50ad70a7eabe4f36b7f1d6e21a269101.r2.dev';
 const DEFAULT_OG_IMAGE = `${OG_IMAGE_BASE_URL}/og/default.png`;
+
+// Use native fetch for SSR compatibility on Cloudflare edge
+async function fetchMetadataFromApi<T>(endpoint: string): Promise<T | null> {
+  try {
+    const url = `${config.api.baseUrl}${endpoint}`;
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      next: { revalidate: 600 },
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.data ?? null;
+  } catch (error) {
+    console.error('[metadata] Fetch failed:', endpoint, error);
+    return null;
+  }
+}
 
 type CanonicalContext =
   | { route: 'id'; noteId: string }
@@ -66,24 +82,18 @@ function buildMetadata(
 export async function getPublicNoteMetadataSafeById(
   noteId: string
 ): Promise<PublicNoteMetadata | null> {
-  try {
-    return await publicNotesApi.getMetadataById(noteId);
-  } catch (error) {
-    console.error('[metadata] Failed to fetch public note metadata by id', error);
-    return null;
-  }
+  return fetchMetadataFromApi<PublicNoteMetadata>(
+    config.api.endpoints.publicNotes.metadata(noteId)
+  );
 }
 
 export async function getPublicNoteMetadataSafeBySlug(
   username: string,
   slug: string
 ): Promise<PublicNoteMetadata | null> {
-  try {
-    return await publicNotesApi.getMetadataBySlug(username, slug);
-  } catch (error) {
-    console.error('[metadata] Failed to fetch public note metadata by slug', error);
-    return null;
-  }
+  return fetchMetadataFromApi<PublicNoteMetadata>(
+    config.api.endpoints.publicNotes.metadataBySlug(username, slug)
+  );
 }
 
 export async function generateNoteMetadataForIdRoute(
