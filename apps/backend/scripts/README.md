@@ -1,3 +1,15 @@
+# Backend Scripts
+
+This directory contains utility scripts for backend operations.
+
+## Scripts
+
+- **`delete-account.ts`** - Delete user accounts and all associated data
+- **`generate-og-images.ts`** - Generate OG images for notes
+- **`generate-default-og.ts`** - Generate default OG image
+
+---
+
 # Account Deletion Script
 
 ## Overview
@@ -156,9 +168,60 @@ npm run delete-account user@example.com --remote
 
 ⚠️ **Test first** - Consider testing with a local database first before using on production.
 
+---
 
+# OG Image Generation Scripts
 
+## Overview
 
+These scripts generate Open Graph (OG) images for social media sharing and upload them to Cloudflare R2.
+
+## Prerequisites
+
+1. **R2 credentials** in `.env.local`:
+   ```env
+   R2_ACCOUNT_ID=your-account-id
+   R2_ACCESS_KEY_ID=your-access-key
+   R2_SECRET_ACCESS_KEY=your-secret-key
+   R2_BUCKET_NAME=zennote-bucket
+   ```
+
+2. **R2 bucket** must exist with public access enabled (see `R2_CDN_SETUP.md`)
+
+## Usage
+
+### Generate Default OG Image
+
+```bash
+npm run og:default
+```
+
+Uploads `og/default.png` to R2. This is the fallback image used when a note doesn't have a custom OG image.
+
+### Generate OG Image for a Note
+
+```bash
+npm run og:generate -- --noteId=<note-id>
+```
+
+Generates and uploads an OG image for a specific note to `og/notes/{noteId}.png`.
+
+### Generate OG Images for All Public Notes
+
+```bash
+npm run og:generate -- --all
+```
+
+Fetches all public notes from the API and generates OG images for each.
+
+## How It Works
+
+1. Fetches note metadata from the API
+2. Generates a 1200x630 PNG image with note title and excerpt
+3. Uploads to R2 with `Cache-Control: public, max-age=31536000, immutable`
+4. Images are served via R2's public URL
+
+See `R2_CDN_SETUP.md` for complete R2 setup instructions.
 
 
 

@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Zennote Frontend
+
+Next.js 15 frontend for Zennote, built with the App Router and Tailwind CSS.
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS
+- **Auth**: Clerk (authentication)
+- **UI Components**: shadcn/ui
+- **Code Highlighting**: Shiki
+- **Deployment**: Cloudflare Pages
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- Clerk account and API keys
+- Backend API running (see `apps/backend/`)
+
+### Environment Variables
+
+Create `.env.local`:
+
+```env
+# API
+NEXT_PUBLIC_API_URL=http://localhost:8787
+
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
+
+# OG Images
+NEXT_PUBLIC_OG_CDN_BASE_URL=https://pub-XXXXX.r2.dev
+
+# Base URL (for production)
+NEXT_PUBLIC_BASE_URL=https://your-domain.com
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+├── app/              # Next.js App Router pages
+│   ├── (auth)/       # Auth pages (login, register)
+│   ├── [username]/   # User profile pages
+│   ├── notes/        # Notes listing and management
+│   └── s/            # Short note URLs
+├── components/       # React components
+│   ├── ui/           # shadcn/ui components
+│   ├── notes/        # Note-related components
+│   └── profile/      # Profile components
+├── lib/              # Utilities and helpers
+│   ├── api/          # API client functions
+│   ├── metadata/     # SEO metadata generation
+│   └── providers/    # React context providers
+└── types/            # TypeScript type definitions
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Markdown Editor**: Rich markdown editing with live preview
+- **Public/Private Notes**: Share notes publicly or keep them private
+- **User Profiles**: Customizable profiles with usernames and slugs
+- **OG Images**: Pre-generated Open Graph images for social sharing
+- **Responsive Design**: Mobile-first responsive UI
+- **Dark Mode**: System-aware theme switching
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Deploy to Cloudflare Pages:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+# Deploy via Cloudflare Pages dashboard or Wrangler
+```
+
+See the root [README.md](../../README.md) for full deployment instructions.

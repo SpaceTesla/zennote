@@ -22,8 +22,10 @@ Perfect for:
 |------------|---------------------------------|
 | Frontend   | [Next.js 15](https://nextjs.org/) + Tailwind CSS |
 | Backend    | [Cloudflare Workers](https://workers.cloudflare.com/) (TypeScript) |
-| Storage    | [Cloudflare R2](https://developers.cloudflare.com/r2/) for markdown blobs |
-| DB         | [Cloudflare D1 / R1](https://developers.cloudflare.com/d1/) for metadata |
+| Auth       | [Clerk](https://clerk.com/) for authentication |
+| Storage    | [Cloudflare R2](https://developers.cloudflare.com/r2/) for OG images |
+| DB         | [Cloudflare D1](https://developers.cloudflare.com/d1/) for metadata |
+| Cache      | Cloudflare KV for caching and rate limiting |
 | Deployment | Cloudflare Pages & Workers via Wrangler |
 
 ---
@@ -47,18 +49,29 @@ zennote/
 
 ## 🚀 Deployment & Hosting
 
-Zennote uses **Cloudflare’s full stack** for hosting:
+Zennote uses **Cloudflare's full stack** for hosting:
 
 - **Frontend** is deployed using [Cloudflare Pages](https://pages.cloudflare.com/)
 - **Backend API** is a Cloudflare Worker deployed via `wrangler`
-- **R2** stores the actual markdown files (blobs)
-- **D1 (R1)** stores metadata like slugs, titles, and timestamps
+- **R2** stores pre-generated OG images (served via public URL)
+- **D1** stores metadata (notes, users, profiles, access permissions)
+- **KV** provides caching and rate limiting
 
-You can find `wrangler.toml` in `apps/backend/`.
+Configuration files:
+- `apps/backend/wrangler.toml` - Worker configuration
+- `apps/backend/migrations/` - Database schema migrations
 
 ---
 
 ## 🧪 Local Development
+
+### Prerequisites
+
+- Node.js 18+
+- Cloudflare account (for Wrangler)
+- Clerk account (for authentication)
+
+### Setup
 
 ```bash
 # Clone the repo
@@ -68,15 +81,26 @@ cd zennote
 # Frontend setup
 cd apps/frontend
 npm install
+# Create .env.local with:
+# - NEXT_PUBLIC_API_URL=http://localhost:8787
+# - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-clerk-key
+# - NEXT_PUBLIC_OG_CDN_BASE_URL=your-r2-public-url
 npm run dev
 
-# Backend setup (requires wrangler)
+# Backend setup
 cd ../backend
 npm install
+# Set up secrets (see apps/backend/DATABASE_SETUP.md)
 wrangler dev
 ```
 
-> Make sure to set up `.env` for frontend & bind R2/D1 vars in `wrangler.toml`.
+### Initial Setup
+
+1. **Database**: Run `npm run db:setup` in `apps/backend/` (creates D1 database and runs migrations)
+2. **Secrets**: Set required secrets via `npm run secrets:set` (see `wrangler.toml` for list)
+3. **R2**: Create R2 bucket and configure (see `apps/backend/R2_CDN_SETUP.md`)
+
+See `apps/backend/DATABASE_SETUP.md` for detailed setup instructions.
 
 ---
 
