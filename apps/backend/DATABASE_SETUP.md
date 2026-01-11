@@ -39,11 +39,7 @@ Run the migrations to set up the database schema:
 npm run db:migrate
 ```
 
-This will:
-1. Create the `notes` table
-2. Create the `users`, `user_profiles`, `user_socials` tables
-3. Create the `user_notes` and `note_access` tables for sharing
-4. Add all necessary indexes
+This will create all tables, indexes, and triggers for the complete schema.
 
 ### Step 4: Deploy
 
@@ -71,13 +67,11 @@ If you prefer to run commands manually:
 # Create database
 wrangler d1 create zennote-d1
 
-# Run migrations (production)
-wrangler d1 execute zennote-d1 --file=./migrations/001_init.sql
-wrangler d1 execute zennote-d1 --file=./migrations/002_add_auth.sql
+# Run migration (production)
+wrangler d1 execute zennote-d1 --remote --file=./migrations/001_init_production.sql
 
-# Run migrations (local)
-wrangler d1 execute zennote-d1 --local --file=./migrations/001_init.sql
-wrangler d1 execute zennote-d1 --local --file=./migrations/002_add_auth.sql
+# Run migration (local)
+wrangler d1 execute zennote-d1 --local --file=./migrations/001_init_production.sql
 ```
 
 ## Verify Setup
