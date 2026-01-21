@@ -22,6 +22,7 @@ export function PublicNoteClient({ username, slug }: PublicNoteClientProps) {
   const [note, setNote] = useState<Note | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copyMdLabel, setCopyMdLabel] = useState('Copy Markdown');
 
   useEffect(() => {
     async function fetchNote() {
@@ -105,19 +106,35 @@ export function PublicNoteClient({ username, slug }: PublicNoteClientProps) {
                 )}
               </div>
 
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast.success('Link copied to clipboard');
-                }}
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80 cursor-pointer"
-                title="Copy link to clipboard"
-              >
-                <Link className="h-4 w-4 mr-2" />
-                Copy link
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => {
+                    if (!note?.content) return;
+                    navigator.clipboard.writeText(note.content);
+                    setCopyMdLabel('Copied!');
+                    setTimeout(() => setCopyMdLabel('Copy Markdown'), 2000);
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80 cursor-pointer"
+                  title="Copy markdown to clipboard"
+                >
+                  {copyMdLabel}
+                </Button>
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success('Link copied to clipboard');
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80 cursor-pointer"
+                  title="Copy link to clipboard"
+                >
+                  <Link className="h-4 w-4 mr-2" />
+                  Copy link
+                </Button>
+              </div>
             </div>
           </header>
         </div>

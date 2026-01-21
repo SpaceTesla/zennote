@@ -26,6 +26,8 @@ export default function ViewNotePage() {
   const [shareLoading, setShareLoading] = useState(false);
   const [shareLabel, setShareLabel] = useState('Share');
   const shareResetRef = useRef<NodeJS.Timeout | null>(null);
+  const [copyMdLabel, setCopyMdLabel] = useState('Copy Markdown');
+  const copyMdResetRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (redirectChecked.current || !noteId) return;
@@ -104,6 +106,9 @@ export default function ViewNotePage() {
       if (shareResetRef.current) {
         clearTimeout(shareResetRef.current);
       }
+      if (copyMdResetRef.current) {
+        clearTimeout(copyMdResetRef.current);
+      }
     };
   }, []);
 
@@ -178,6 +183,25 @@ export default function ViewNotePage() {
                         }
                       />
                     )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80"
+                      onClick={() => {
+                        if (!currentNote?.content) return;
+                        if (copyMdResetRef.current) {
+                          clearTimeout(copyMdResetRef.current);
+                        }
+                        navigator.clipboard.writeText(currentNote.content);
+                        setCopyMdLabel('Copied!');
+                        copyMdResetRef.current = setTimeout(() => {
+                          setCopyMdLabel('Copy Markdown');
+                        }, 2000);
+                      }}
+                      title="Copy markdown to clipboard"
+                    >
+                      {copyMdLabel}
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"

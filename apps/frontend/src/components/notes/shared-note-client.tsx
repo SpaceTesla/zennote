@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,6 +17,7 @@ interface SharedNoteClientProps {
 export function SharedNoteClient({ noteId }: SharedNoteClientProps) {
   const router = useRouter();
   const { data: note, isLoading, error } = useSharedNote(noteId);
+  const [copyMdLabel, setCopyMdLabel] = useState('Copy Markdown');
 
   useEffect(() => {
     if (note?.user_permission === 'owner') {
@@ -77,19 +78,35 @@ export function SharedNoteClient({ noteId }: SharedNoteClientProps) {
                 )}
               </div>
 
-              <Button
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast.success('Link copied to clipboard');
-                }}
-                variant="ghost"
-                size="sm"
-                className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80 cursor-pointer"
-                title="Copy link to clipboard"
-              >
-                <Link className="h-4 w-4 mr-2" />
-                Copy link
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => {
+                    if (!note?.content) return;
+                    navigator.clipboard.writeText(note.content);
+                    setCopyMdLabel('Copied!');
+                    setTimeout(() => setCopyMdLabel('Copy Markdown'), 2000);
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80 cursor-pointer"
+                  title="Copy markdown to clipboard"
+                >
+                  {copyMdLabel}
+                </Button>
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success('Link copied to clipboard');
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80 cursor-pointer"
+                  title="Copy link to clipboard"
+                >
+                  <Link className="h-4 w-4 mr-2" />
+                  Copy link
+                </Button>
+              </div>
             </div>
           </header>
         </div>
