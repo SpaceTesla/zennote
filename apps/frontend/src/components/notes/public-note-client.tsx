@@ -78,7 +78,7 @@ export function PublicNoteClient({ username, slug }: PublicNoteClientProps) {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-2 pb-8">
-        <article className="max-w-3xl bg-accent/60 mx-auto px-6 py-4 rounded-lg space-y-4">
+        <div className="max-w-3xl bg-accent/60 mx-auto px-6 py-4 rounded-lg">
           <header>
             <h1 className="text-2xl md:text-3xl font-bold leading-tight tracking-tight text-accent-foreground">
               {note.title}
@@ -120,10 +120,10 @@ export function PublicNoteClient({ username, slug }: PublicNoteClientProps) {
               </Button>
             </div>
           </header>
+        </div>
 
-          <section>
-            <MarkdownPreview content={note.content} className="min-h-[400px]" />
-          </section>
+        <article>
+          <MarkdownPreview content={note.content} className="min-h-[400px]" />
         </article>
       </div>
     </div>
