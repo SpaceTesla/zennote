@@ -220,7 +220,7 @@ export default function ViewNotePage() {
                       title="Copy link to clipboard"
                     >
                       <LinkIcon className="h-4 w-4 mr-2" />
-                      {shareDisabled ? 'Share (unavailable)' : shareLabel}
+                      {currentNote.visibility === 'private' ? 'Share (unavailable)' : shareLabel}
                     </Button>
                   </div>
                 </div>

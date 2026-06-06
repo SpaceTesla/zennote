@@ -11,29 +11,29 @@ describe('Note Schemas', () => {
       const input = {
         title: 'Test Note',
         content: 'Test content',
-        is_public: false,
+        visibility: 'private',
       };
 
       const result = createNoteSchema.parse(input);
       expect(result.title).toBe('Test Note');
       expect(result.content).toBe('Test content');
-      expect(result.is_public).toBe(false);
+      expect(result.visibility).toBe('private');
     });
 
-    it('should default is_public to false', () => {
+    it('should reject missing visibility', () => {
       const input = {
         title: 'Test Note',
         content: 'Test content',
       };
 
-      const result = createNoteSchema.parse(input);
-      expect(result.is_public).toBe(false);
+      expect(() => createNoteSchema.parse(input)).toThrow();
     });
 
     it('should reject empty title', () => {
       const input = {
         title: '',
         content: 'Test content',
+        visibility: 'private',
       };
 
       expect(() => createNoteSchema.parse(input)).toThrow();
@@ -43,6 +43,7 @@ describe('Note Schemas', () => {
       const input = {
         title: 'a'.repeat(501),
         content: 'Test content',
+        visibility: 'private',
       };
 
       expect(() => createNoteSchema.parse(input)).toThrow();

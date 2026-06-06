@@ -1,3 +1,10 @@
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  hasMore: boolean;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
@@ -9,12 +16,7 @@ export interface ApiResponse<T = unknown> {
   meta?: {
     requestId?: string;
     timestamp: string;
-    pagination?: {
-      page: number;
-      limit: number;
-      total: number;
-      hasMore: boolean;
-    };
+    pagination?: PaginationMeta;
   };
 }
 
@@ -56,7 +58,7 @@ export function paginationMeta(
   page: number,
   limit: number,
   total: number
-): ApiResponse['meta']['pagination'] {
+): PaginationMeta {
   return {
     page,
     limit,

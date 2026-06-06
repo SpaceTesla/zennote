@@ -23,11 +23,11 @@ export interface UserSettings {
 
 export interface UpdateProfileInput {
   username?: string;
-  display_name?: string;
-  bio?: string;
-  avatar_url?: string;
-  website_url?: string;
-  location?: string;
+  display_name?: string | null;
+  bio?: string | null;
+  avatar_url?: string | null;
+  website_url?: string | null;
+  location?: string | null;
 }
 
 export interface UpdateSettingsInput {

@@ -1,7 +1,8 @@
 export class EdgeCacheService {
   async get(request: Request): Promise<Response | null> {
     const cache = caches.default;
-    return cache.match(request);
+    const response = await cache.match(request);
+    return response || null;
   }
 
   async put(request: Request, response: Response): Promise<void> {

@@ -22,7 +22,7 @@ export function responseFormatter(
     ...(options?.pagination && { pagination: options.pagination }),
   });
 
-  const etag = data && context.cacheService?.generateETag(data);
+  const etag = data ? context.cacheService?.generateETag(data) : undefined;
   if (etag && context.ifNoneMatch === etag && status === 200) {
     return new Response(null, {
       status: 304,

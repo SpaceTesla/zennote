@@ -5,6 +5,7 @@ import {
   UpdateNoteInput,
   CreateNoteInput,
   Note,
+  ShareNoteInput,
 } from '@/types/note';
 
 export const noteKeys = {
@@ -102,6 +103,30 @@ export function useCollaborators(id: string) {
     queryFn: () => notesApi.getCollaborators(id),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useShareNote() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: ShareNoteInput }) =>
+      notesApi.shareNote(id, data),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: noteKeys.collaborators(variables.id) });
+    },
+  });
+}
+
+export function useRevokeAccess() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, userId }: { id: string; userId: string }) =>
+      notesApi.revokeAccess(id, userId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: noteKeys.collaborators(variables.id) });
+    },
   });
 }
 

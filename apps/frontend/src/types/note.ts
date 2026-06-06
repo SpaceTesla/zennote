@@ -48,8 +48,8 @@ export interface NoteAccess {
 }
 
 export interface ShareNoteInput {
-  userId: string;
-  permissionLevel: PermissionLevel;
+  user_id: string;
+  permission_level: PermissionLevel;
 }
 
 export interface NotesQueryParams {

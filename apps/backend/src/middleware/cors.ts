@@ -1,4 +1,6 @@
 import { Env } from '../types/env';
+import { CacheService } from '../services/cache.service';
+import { EdgeCacheService } from '../services/edge-cache.service';
 
 export interface MiddlewareContext {
   request: Request;
@@ -6,6 +8,15 @@ export interface MiddlewareContext {
   params: Record<string, string>;
   user?: { id: string; email: string };
   requestId: string;
+  corsHeaders?: Record<string, string>;
+  rateLimitHeaders?: Record<string, string>;
+  ifNoneMatch?: string;
+  cacheService?: CacheService;
+  edgeCacheService?: EdgeCacheService;
+  startTime?: number;
+  logResponse?: (response: Response) => void;
+  apiVersion?: string;
+  path?: string;
   [key: string]: unknown;
 }
 

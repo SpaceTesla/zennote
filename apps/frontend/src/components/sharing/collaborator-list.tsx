@@ -3,20 +3,31 @@
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { NoteAccess } from '@/types/note';
+import { useCollaborators, useRevokeAccess } from '@/lib/queries/notes.queries';
 import { X } from '@/components/ui/hugeicons';
 import { toast } from 'sonner';
 
 interface CollaboratorListProps {
   noteId: string;
-  collaborators?: NoteAccess[];
 }
 
-export function CollaboratorList({ noteId, collaborators = [] }: CollaboratorListProps) {
+export function CollaboratorList({ noteId }: CollaboratorListProps) {
+  const { data: collaborators = [], isLoading } = useCollaborators(noteId);
+  const revokeAccessMutation = useRevokeAccess();
+
   const handleRevoke = async (userId: string) => {
-    // TODO: Implement revoke access API call
-    toast.success('Access revoked');
+    try {
+      await revokeAccessMutation.mutateAsync({ id: noteId, userId });
+      toast.success('Access revoked successfully');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to revoke access');
+      console.error(error);
+    }
   };
+
+  if (isLoading) {
+    return <p className="text-sm text-muted-foreground">Loading collaborators...</p>;
+  }
 
   if (collaborators.length === 0) {
     return <p className="text-sm text-muted-foreground">No collaborators yet</p>;
@@ -45,6 +56,7 @@ export function CollaboratorList({ noteId, collaborators = [] }: CollaboratorLis
             size="icon"
             onClick={() => handleRevoke(access.user_id)}
             className="h-8 w-8"
+            disabled={revokeAccessMutation.isPending}
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Revoke access</span>
@@ -54,4 +66,3 @@ export function CollaboratorList({ noteId, collaborators = [] }: CollaboratorLis
     </div>
   );
 }
-
