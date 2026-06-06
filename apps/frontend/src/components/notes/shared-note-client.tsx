@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarkdownPreview } from '@/components/notes/markdown-preview';
 import { useSharedNote } from '@/lib/queries/notes.queries';
-import { Link, Calendar, Globe, Lock } from '@/components/ui/hugeicons';
+import { Link as LinkIcon, Calendar, Globe, Lock, Edit } from '@/components/ui/hugeicons';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 
@@ -18,12 +19,6 @@ export function SharedNoteClient({ noteId }: SharedNoteClientProps) {
   const router = useRouter();
   const { data: note, isLoading, error } = useSharedNote(noteId);
   const [copyMdLabel, setCopyMdLabel] = useState('Copy Markdown');
-
-  useEffect(() => {
-    if (note?.user_permission === 'owner') {
-      router.replace(`/notes/${note.id}`);
-    }
-  }, [note?.user_permission, note?.id, router]);
 
   if (isLoading) {
     return (
@@ -48,8 +43,31 @@ export function SharedNoteClient({ noteId }: SharedNoteClientProps) {
 
   const displayDate = format(new Date(note.updated_at || note.created_at), 'MMM d, yyyy');
 
+  const canEdit = note?.user_permission === 'owner' || note?.user_permission === 'admin' || note?.user_permission === 'write';
+
   return (
     <div className="min-h-screen bg-background">
+      {note && canEdit && (
+        <div className="bg-muted/40 border-b border-border py-2.5 px-4 mb-6">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <span className="text-sm text-muted-foreground flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              You have edit access to this note
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1 text-xs cursor-pointer"
+              render={
+                <Link href={`/notes/${note.id}`} className="inline-flex items-center gap-1.5">
+                  <Edit className="h-3.5 w-3.5" />
+                  Manage Note
+                </Link>
+              }
+            />
+          </div>
+        </div>
+      )}
       <div className="container mx-auto py-2 pb-8">
         <div className="max-w-3xl bg-accent/60 mx-auto px-6 py-4 rounded-lg">
           <header>
@@ -103,7 +121,7 @@ export function SharedNoteClient({ noteId }: SharedNoteClientProps) {
                   className="h-8 px-2 text-accent-foreground hover:text-accent-foreground/80 cursor-pointer"
                   title="Copy link to clipboard"
                 >
-                  <Link className="h-4 w-4 mr-2" />
+                  <LinkIcon className="h-4 w-4 mr-2" />
                   Copy link
                 </Button>
               </div>
