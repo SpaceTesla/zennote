@@ -12,7 +12,7 @@ import {
 } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { FileText } from '@/components/ui/hugeicons';
+import { FileText, Settings, User } from '@/components/ui/hugeicons';
 import { Logo } from '@/components/logo';
 import { cn } from '@/lib/utils';
 
@@ -77,7 +77,20 @@ export function Header() {
               appearance={{
                 elements: { userButtonAvatarBox: 'h-9 w-9' },
               }}
-            />
+            >
+              <UserButton.MenuItems>
+                <UserButton.Link
+                  label="My Profile"
+                  labelIcon={<User className="h-4 w-4" />}
+                  href={user?.username ? `/u/${user.username}` : `/settings`}
+                />
+                <UserButton.Link
+                  label="Settings"
+                  labelIcon={<Settings className="h-4 w-4" />}
+                  href="/settings"
+                />
+              </UserButton.MenuItems>
+            </UserButton>
           </SignedIn>
 
           <SignedOut>

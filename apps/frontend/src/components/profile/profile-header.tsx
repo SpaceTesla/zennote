@@ -62,7 +62,7 @@ export function ProfileHeader({ profile, username }: ProfileHeaderProps) {
           )}
         </div>
         {isOwnProfile && (
-          <Button render={<Link href="/profile/edit"><Edit className="h-4 w-4 mr-2" />Edit Profile</Link>} />
+          <Button render={<Link href="/settings"><Edit className="h-4 w-4 mr-2" />Edit Profile</Link>} />
         )}
       </div>
     </header>

@@ -1,86 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
-import { ProfileEditForm } from '@/components/profile/profile-edit-form';
-import { profilesApi } from '@/lib/api/profiles';
-import { UpdateProfileInput, UserProfile } from '@/types/profile';
-import { ProtectedRoute } from '@/components/auth/protected-route';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function EditProfilePage() {
+export default function EditProfileRedirect() {
   const router = useRouter();
-  const { user } = useUser();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-      try {
-        const identifier = user.username || user.id;
-        const data = await profilesApi.getProfile(identifier);
-        setProfile(data);
-      } catch (error) {
-        console.error('Failed to fetch profile:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    router.replace('/settings');
+  }, [router]);
 
-    fetchProfile();
-  }, [user]);
-
-  const handleSubmit = async (data: UpdateProfileInput) => {
-    await profilesApi.updateProfile(data);
-    // Redirect to the profile using username (GitHub-style)
-    const target = data.username || user?.username || user?.id;
-    if (target) {
-      router.push(`/u/${target}`);
-    } else {
-      router.push('/');
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <ProtectedRoute>
-        <div className="container mx-auto px-4 py-12 max-w-2xl">
-          <Skeleton className="h-64 w-full rounded-lg" />
-        </div>
-      </ProtectedRoute>
-    );
-  }
-
-  return (
-    <ProtectedRoute>
-      <div className="container mx-auto px-4 py-12 max-w-2xl">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Edit Profile</CardTitle>
-            <CardDescription>Update your profile information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ProfileEditForm
-              initialData={
-                profile
-                  ? {
-                      username: profile.username,
-                      display_name: profile.display_name ?? undefined,
-                      bio: profile.bio ?? undefined,
-                      avatar_url: profile.avatar_url ?? undefined,
-                      website_url: profile.website_url ?? undefined,
-                      location: profile.location ?? undefined,
-                    }
-                  : undefined
-              }
-              onSubmit={handleSubmit}
-            />
-          </CardContent>
-        </Card>
-      </div>
-    </ProtectedRoute>
-  );
+  return null;
 }
