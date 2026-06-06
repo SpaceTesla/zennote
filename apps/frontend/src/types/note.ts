@@ -17,6 +17,7 @@ export interface Note {
   created_at: string;
   updated_at: string;
   user_permission?: PermissionLevel;
+  owner_username?: string | null;
 }
 
 export interface CreateNoteInput {

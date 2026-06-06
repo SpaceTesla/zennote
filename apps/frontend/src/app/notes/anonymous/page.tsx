@@ -52,7 +52,7 @@ export default function AnonymousNotePage() {
       });
 
       toast.success('Anonymous note created! It will expire in 7 days.');
-      router.push(`/notes/${note.id}`);
+      router.push(`/s/${note.id}`);
     } catch (error) {
       console.error('Error creating anonymous note:', error);
       toast.error('Failed to create note. Please try again.');

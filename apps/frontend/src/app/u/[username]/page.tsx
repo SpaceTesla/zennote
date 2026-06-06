@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 import { ProfileHeader } from '@/components/profile/profile-header';
+import { useAuthMe } from '@/lib/queries/auth.queries';
 import { Skeleton } from '@/components/ui/skeleton';
 import { profilesApi } from '@/lib/api/profiles';
 import { notesApi } from '@/lib/api/notes';
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   const params = useParams();
   const username = params.username as string;
   const { user: clerkUser } = useUser();
+  const { data: authData } = useAuthMe();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
@@ -115,7 +117,7 @@ export default function ProfilePage() {
     );
   }
 
-  const isOwnProfile = !!clerkUser && clerkUser.id === profile.user_id;
+  const isOwnProfile = !!authData?.user && authData.user.id === profile.user_id;
 
   return (
     <div className="min-h-screen bg-background">

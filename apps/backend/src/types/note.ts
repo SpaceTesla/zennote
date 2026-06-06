@@ -19,6 +19,7 @@ export interface Note {
   view_count: number;
   created_at: string;
   updated_at: string;
+  owner_username?: string | null;
 }
 
 export interface CreateNoteInput {

@@ -23,6 +23,15 @@ export function NoteCard({ note, onEdit, onDelete, onShare }: NoteCardProps) {
     ? note.content.substring(0, 150) + '...'
     : note.content;
 
+  const noteLink =
+    note.visibility === 'private'
+      ? `/notes/${note.id}`
+      : note.visibility === 'unlisted' || note.ownership_type === 'anonymous'
+      ? `/s/${note.id}`
+      : note.visibility === 'public' && note.slug && note.owner_username
+      ? `/u/${note.owner_username}/${note.slug}`
+      : `/s/${note.id}`;
+
   return (
     <article className="group relative rounded-xl border border-border/40 bg-muted/10 p-5 transition-colors hover:bg-muted/30">
       <div className="absolute right-3 top-3 opacity-0 transition-opacity group-hover:opacity-100">
@@ -64,7 +73,7 @@ export function NoteCard({ note, onEdit, onDelete, onShare }: NoteCardProps) {
         </DropdownMenu>
       </div>
 
-      <Link href={`/notes/${note.id}`} className="block space-y-3">
+      <Link href={noteLink} className="block space-y-3">
         <div className="space-y-2 pr-10">
           <h3 className="text-xl font-medium tracking-tight text-foreground line-clamp-2 group-hover:text-foreground">
             {note.title}

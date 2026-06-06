@@ -682,6 +682,23 @@ export async function handleGetCollaborators(
     const cacheService = new CacheService(env.CACHE_KV);
     const accessService = new AccessService(dbService, cacheService);
 
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found', 401);
+    }
+
+    const requesterAccess = await accessService.checkPermission(noteId, userId);
+    if (
+      !requesterAccess ||
+      (requesterAccess !== 'owner' && requesterAccess !== 'admin')
+    ) {
+      throw createError(
+        ErrorCode.FORBIDDEN,
+        'Only owners and admins can view collaborators',
+        403
+      );
+    }
+
     const collaborators = await accessService.getNoteCollaborators(noteId);
 
     return responseFormatter(context, collaborators, 200);

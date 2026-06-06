@@ -10,6 +10,21 @@ import {
 } from '../schemas/profile.schema';
 import { toUserId } from '../utils/types';
 import { createError, ErrorCode } from '../utils/errors';
+import { AuthService } from '../services/auth.service';
+
+/**
+ * Helper function to convert Clerk user ID to database user ID
+ */
+async function getDbUserId(
+  clerkUserId: string | undefined,
+  dbService: DbService
+) {
+  if (!clerkUserId) return null;
+
+  const authService = new AuthService(dbService);
+  const dbUser = await authService.getUserByClerkId(clerkUserId);
+  return dbUser ? toUserId(dbUser.id) : null;
+}
 
 export async function handleGetProfile(
   context: MiddlewareContext
@@ -51,7 +66,10 @@ export async function handleUpdateProfile(
     const cacheService = new CacheService(env.CACHE_KV);
     const profileService = new ProfileService(dbService, cacheService);
 
-    const userId = toUserId(user.id);
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found in database', 401);
+    }
     const profile = await profileService.updateProfile(userId, input);
 
     return responseFormatter(context, profile, 200);
@@ -72,7 +90,10 @@ export async function handleGetSettings(
     const dbService = new DbService(env.DB);
     const cacheService = new CacheService(env.CACHE_KV);
     const profileService = new ProfileService(dbService, cacheService);
-    const userId = toUserId(user.id);
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found in database', 401);
+    }
     const settings = await profileService.getSettings(userId);
 
     if (!settings) {
@@ -100,7 +121,10 @@ export async function handleUpdateSettings(
     const cacheService = new CacheService(env.CACHE_KV);
     const profileService = new ProfileService(dbService, cacheService);
 
-    const userId = toUserId(user.id);
+    const userId = await getDbUserId(user.id, dbService);
+    if (!userId) {
+      throw createError(ErrorCode.UNAUTHORIZED, 'User not found in database', 401);
+    }
     const settings = await profileService.updateSettings(userId, input);
 
     return responseFormatter(context, settings, 200);

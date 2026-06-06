@@ -10,7 +10,6 @@ import { Share2, Edit, Lock, Globe, Calendar, Link as LinkIcon } from '@/compone
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ApiError } from '@/types/api';
-import { ProtectedRoute } from '@/components/auth/protected-route';
 import { profilesApi } from '@/lib/api/profiles';
 
 export const runtime = 'edge';
@@ -113,7 +112,7 @@ export default function ViewNotePage() {
   }, []);
 
   return (
-    <ProtectedRoute>
+    <>
       {isLoading ? (
         <div className="container mx-auto px-4 py-12 max-w-4xl space-y-6">
           <Skeleton className="h-12 w-3/4 mb-4" />
@@ -234,6 +233,6 @@ export default function ViewNotePage() {
           </div>
         </div>
       )}
-    </ProtectedRoute>
+    </>
   );
 }

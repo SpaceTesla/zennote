@@ -67,7 +67,7 @@ export class NoteService {
     params.push(limit, offset);
 
     const notes = await this.db.query<Note>(
-      `SELECT n.* FROM notes n ${whereClause} ${orderClause} ${limitClause}`,
+      `SELECT n.*, up.username as owner_username FROM notes n LEFT JOIN user_profiles up ON n.owner_id = up.user_id ${whereClause} ${orderClause} ${limitClause}`,
       params
     );
 
@@ -108,7 +108,7 @@ export class NoteService {
       this.notFound();
     }
 
-    const note = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
+    const note = await this.db.queryOne<Note>('SELECT n.*, up.username as owner_username FROM notes n LEFT JOIN user_profiles up ON n.owner_id = up.user_id WHERE n.id = ?', [noteId]);
     if (!note) {
       this.notFound();
     }
@@ -142,7 +142,7 @@ export class NoteService {
     noteId: NoteId,
     userId: UserId | null
   ): Promise<NoteWithAccess | null> {
-    const note = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
+    const note = await this.db.queryOne<Note>('SELECT n.*, up.username as owner_username FROM notes n LEFT JOIN user_profiles up ON n.owner_id = up.user_id WHERE n.id = ?', [noteId]);
     if (!note) {
       this.notFound();
     }
@@ -180,7 +180,7 @@ export class NoteService {
     }
 
     const note = await this.db.queryOne<Note>(
-      'SELECT * FROM notes WHERE slug = ? AND slug_owner_id = ?',
+      'SELECT n.*, up.username as owner_username FROM notes n LEFT JOIN user_profiles up ON n.owner_id = up.user_id WHERE n.slug = ? AND n.slug_owner_id = ?',
       [slug, owner.user_id]
     );
     if (!note) {
@@ -273,7 +273,7 @@ export class NoteService {
       ]
     );
 
-    const note = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
+    const note = await this.db.queryOne<Note>('SELECT n.*, up.username as owner_username FROM notes n LEFT JOIN user_profiles up ON n.owner_id = up.user_id WHERE n.id = ?', [noteId]);
     if (!note) {
       throw createError(ErrorCode.INTERNAL_ERROR, 'Failed to create note', 500);
     }
@@ -350,7 +350,7 @@ export class NoteService {
       params
     );
 
-    const updated = await this.db.queryOne<Note>('SELECT * FROM notes WHERE id = ?', [noteId]);
+    const updated = await this.db.queryOne<Note>('SELECT n.*, up.username as owner_username FROM notes n LEFT JOIN user_profiles up ON n.owner_id = up.user_id WHERE n.id = ?', [noteId]);
     if (!updated) {
       throw createError(ErrorCode.NOT_FOUND, 'Note not found', 404);
     }

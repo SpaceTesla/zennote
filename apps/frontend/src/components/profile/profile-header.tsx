@@ -7,6 +7,7 @@ import { SocialLinks } from './social-links';
 import { Edit } from '@/components/ui/hugeicons';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
+import { useAuthMe } from '@/lib/queries/auth.queries';
 
 interface ProfileHeaderProps {
   profile: UserProfile;
@@ -15,7 +16,8 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ profile, username }: ProfileHeaderProps) {
   const { user: clerkUser } = useUser();
-  const isOwnProfile = clerkUser?.id === profile.user_id || clerkUser?.username === profile.username;
+  const { data: authData } = useAuthMe();
+  const isOwnProfile = authData?.user?.id === profile.user_id || clerkUser?.username === profile.username;
 
   const getInitials = () => {
     if (profile.display_name) {
