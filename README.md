@@ -1,6 +1,6 @@
 # 🧘 Zennote - Paste. Beautify. Share.
 
-*Zennote turns messy AI markdown into beautiful, shareable notes — instantly.*
+_Zennote turns messy AI markdown into beautiful, shareable notes — instantly._
 
 ---
 
@@ -10,6 +10,7 @@ Zennote is a markdown beautifier built for the modern age of AI and instant shar
 It takes unstructured markdown (often copied from AI tools), beautifies it with a clean design, and gives you a shareable URL — all in seconds.
 
 Perfect for:
+
 - Sharing AI responses or dev notes
 - Creating clean, shareable docs from markdown
 - Personal knowledge management
@@ -18,15 +19,46 @@ Perfect for:
 
 ## 🛠️ Tech Stack
 
-| Layer      | Tech                            |
-|------------|---------------------------------|
-| Frontend   | [Next.js 15](https://nextjs.org/) + Tailwind CSS |
-| Backend    | [Cloudflare Workers](https://workers.cloudflare.com/) (TypeScript) |
-| Auth       | [Clerk](https://clerk.com/) for authentication |
+| Layer      | Tech                                                                 |
+| ---------- | -------------------------------------------------------------------- |
+| Frontend   | [Next.js 15](https://nextjs.org/) + Tailwind CSS                     |
+| Backend    | [Cloudflare Workers](https://workers.cloudflare.com/) (TypeScript)   |
+| Auth       | [Clerk](https://clerk.com/) for authentication                       |
 | Storage    | [Cloudflare R2](https://developers.cloudflare.com/r2/) for OG images |
-| DB         | [Cloudflare D1](https://developers.cloudflare.com/d1/) for metadata |
-| Cache      | Cloudflare KV for caching and rate limiting |
-| Deployment | Cloudflare Pages & Workers via Wrangler |
+| DB         | [Cloudflare D1](https://developers.cloudflare.com/d1/) for metadata  |
+| Cache      | Cloudflare KV for caching and rate limiting                          |
+| Deployment | Cloudflare Pages & Workers via Wrangler                              |
+
+### 🌐 Cloudflare Services Architecture
+
+```mermaid
+graph TD
+    User["User (Web Browser)"]
+
+    subgraph Cloudflare Edge Platform
+        CFPages["Cloudflare Pages (Next.js App)"]
+        CFWorker["Cloudflare Workers (REST API)"]
+        D1["Cloudflare D1 (SQL Database)"]
+        KV["Cloudflare KV (Cache & Rate Limits)"]
+        R2["Cloudflare R2 (OG Image Store)"]
+    end
+
+    Clerk["Clerk Auth (Authentication & Users)"]
+
+    User -->|Accesses UI / SSR| CFPages
+    User -->|Authenticates / Obtains JWT| Clerk
+    User -->|Sends API Requests| CFWorker
+    CFPages -->|Calls API with JWT| CFWorker
+
+    CFWorker -->|Verifies Token| Clerk
+    CFWorker -->|Reads/Writes Notes & Profiles| D1
+    CFWorker -->|Caches Data & Rate Limits| KV
+    CFWorker -->|Saves Pre-generated OG Images| R2
+
+    User -->|Loads OG Images| R2
+```
+
+For a detailed breakdown of the system architecture and data flows, check out the [Architecture Guide](docs/architecture.md).
 
 ---
 
@@ -37,9 +69,15 @@ zennote/
 ├── apps/
 │   ├── backend/       # Cloudflare Worker logic
 │   │   ├── src/       # Worker source code (index.ts)
-│   │   └── migrations/ # DB migrations (D1/R1)
+│   │   └── migrations/ # DB migrations (D1)
 │   └── frontend/      # Next.js app
 │       └── src/       # App Router setup, components, libs, config
+├── docs/              # System documentation & setup guides
+│   ├── api.md
+│   ├── architecture.md
+│   ├── database_setup.md
+│   ├── migration_guide.md
+│   └── r2_cdn_setup.md
 ├── .gitignore
 ├── LICENSE
 └── README.md
@@ -58,6 +96,7 @@ Zennote uses **Cloudflare's full stack** for hosting:
 - **KV** provides caching and rate limiting
 
 Configuration files:
+
 - `apps/backend/wrangler.toml` - Worker configuration
 - `apps/backend/migrations/` - Database schema migrations
 
@@ -90,7 +129,7 @@ npm run dev
 # Backend setup
 cd ../backend
 npm install
-# Set up secrets (see apps/backend/DATABASE_SETUP.md)
+# Set up secrets (see docs/database_setup.md)
 wrangler dev
 ```
 
@@ -98,9 +137,9 @@ wrangler dev
 
 1. **Database**: Run `npm run db:setup` in `apps/backend/` (creates D1 database and runs migrations)
 2. **Secrets**: Set required secrets via `npm run secrets:set` (see `wrangler.toml` for list)
-3. **R2**: Create R2 bucket and configure (see `apps/backend/R2_CDN_SETUP.md`)
+3. **R2**: Create R2 bucket and configure (see `docs/r2_cdn_setup.md`)
 
-See `apps/backend/DATABASE_SETUP.md` for detailed setup instructions.
+See [docs/database_setup.md](docs/database_setup.md) for detailed setup instructions.
 
 ---
 
@@ -136,4 +175,4 @@ Feel free to use, remix, or extend Zennote. Just don’t be evil 🙃
 
 ---
 
-Made with ☕ + 💭 by [Shivansh Karan](https://shivanshkaran.tech)
+Made with ☕ + 💭 by [Shivansh Karan](https://shivanshkaran.dev)
