@@ -1,14 +1,13 @@
 'use client';
 
-import React, { ComponentPropsWithoutRef, useEffect, useState } from 'react';
+import React, { ComponentPropsWithoutRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { useTheme } from 'next-themes';
-import type { Highlighter } from 'shiki';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { loadHighlighter } from '@/lib/shiki';
+import { HighlightedCodeBlock } from '@/components/notes/highlighted-code-block';
 import { toast } from 'sonner';
 import { Copy, CheckIcon } from '@/components/ui/hugeicons';
 
@@ -23,23 +22,6 @@ interface CodeProps extends ComponentPropsWithoutRef<'code'> {
 
 export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
   const { resolvedTheme } = useTheme();
-  const [highlighter, setHighlighter] = useState<Highlighter | null>(null);
-
-  useEffect(() => {
-    let active = true;
-
-    loadHighlighter()
-      .then((instance) => {
-        if (active) setHighlighter(instance);
-      })
-      .catch((error) => {
-        console.error('Failed to load syntax highlighter', error);
-      });
-
-    return () => {
-      active = false;
-    };
-  }, []);
 
   const CodeBlockHeader = ({
     language,
@@ -109,21 +91,15 @@ export function MarkdownPreview({ content, className }: MarkdownPreviewProps) {
     const language = (className || '').replace('language-', '').trim();
     const code = String(children ?? '').replace(/\n$/, '');
 
-    // Use Shiki for syntax highlighting if available
-    if (highlighter && language) {
-      const theme =
-        resolvedTheme === 'dark'
-          ? 'github-dark-default'
-          : 'github-light-default';
-      const html = highlighter.codeToHtml(code, {
-        lang: language,
-        theme,
-      });
-
+    if (language) {
       return (
         <div className="code-block-wrapper not-prose">
           <CodeBlockHeader language={language} code={code} />
-          <div dangerouslySetInnerHTML={{ __html: html }} />
+          <HighlightedCodeBlock
+            code={code}
+            language={language}
+            theme={resolvedTheme}
+          />
         </div>
       );
     }
